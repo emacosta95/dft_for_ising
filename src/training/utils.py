@@ -13,7 +13,7 @@ from tqdm.notebook import tqdm, trange
 from torch.utils.data import Dataset, TensorDataset, DataLoader
 import matplotlib.pyplot as plt
 
-from src.training.models import Energy
+
 
 
 # %%

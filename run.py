@@ -1,4 +1,4 @@
-from src.gradient_descent_unet import GradientDescent
+from src.gradient_descent import GradientDescent
 import argparse
 import torch
 import numpy as np

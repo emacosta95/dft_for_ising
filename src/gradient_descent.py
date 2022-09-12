@@ -4,38 +4,16 @@ from numpy.lib.mixins import _inplace_binary_method
 import torch as pt
 import torch.nn as nn
 import numpy as np
-from src.training.models_unet import Energy_unet
+from src.training.models import Energy_unet
 from src.training.utils import initial_ensamble_random
 from tqdm import tqdm, trange
 import matplotlib.pyplot as plt
-from scipy import fft, ifft
 import random
 
 device = pt.device("cuda" if pt.cuda.is_available() else "cpu")
 
 
-def smooth_grad(grad: pt.tensor, cut: int) -> pt.tensor:
-    """This routine is a filter of the gradient function.
 
-    Arguments:
-
-    grad [pt.tensor]: the gradient of the functional respect to phi
-    cut [int]: the cutoff in the momentum space (k-space)
-
-
-    Returns:
-        grad[pt.tensor]: the filtered gradient
-    """
-
-    grad = grad.detach().numpy()
-    grad_fft = fft(grad, axis=1)
-    grad_fft[:, cut:128] = 0
-    grad_fft[:, -128 : -1 * cut] = 0
-
-    new_grad = ifft(grad_fft, axis=1)
-    grad = pt.tensor(np.real(new_grad), dtype=pt.double)
-
-    return grad
 
 
 def exact_energy_functional(dens: np.array, pot: np.array):
