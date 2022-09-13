@@ -373,18 +373,18 @@ class GradientDescent:
         # save the numpy values
         if idx != 0:
             np.savez(
-                "gradient_descent_ensamble_numpy/min_vs_gs_gradient_descent_"
+                "data/gd_data/eng_"
                 + session_name,
                 min_energy=self.min_engs[epoch],
                 gs_energy=self.e_target[0 : (self.min_engs[epoch].shape[0])],
             )
             np.savez(
-                "gradient_descent_ensamble_numpy/min_density_" + session_name,
+                "data/gd_data/density_" + session_name,
                 min_density=self.min_ns[epoch],
                 gs_density=self.n_target[0 : self.min_ns[epoch].shape[0]],
                 gradient=self.grads[epoch],
             )
             np.savez(
-                "gradient_descent_ensamble_numpy/history_" + session_name,
+                "data/gd_data/history/history_" + session_name,
                 history=self.min_hist[epoch],
             )

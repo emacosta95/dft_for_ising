@@ -11,9 +11,9 @@ from torchmetrics import R2Score
 from tqdm.notebook import tqdm, trange
 from torch.utils.data import Dataset, TensorDataset, DataLoader
 import matplotlib.pyplot as plt
-from src.training.models_unet import Energy_unet
+from src.training.models import Energy_unet
 from src.training.utils import count_parameters
-from src.training.models import Energy
+
 
 
 
