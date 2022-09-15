@@ -4,9 +4,8 @@ import torch as pt
 import numpy as np
 from torch.nn.modules import pooling
 from tqdm import tqdm, trange
-from src.training.models import REDENT
+from src.training.models import REDENT, Den2Cor
 from src.training.utils import (
-    make_data_loader,
     get_optimizer,
     count_parameters,
     from_txt_to_bool,
@@ -158,6 +157,13 @@ parser.add_argument(
     default="h_3.0_unet_periodic_ising_cnn_64_size",
 )
 
+parser.add_argument(
+    "--model_type",
+    type=str,
+    help="could be either REDENT or Den2Cor",
+    default="REDENT",
+)
+
 
 def main(args):
 
@@ -228,21 +234,40 @@ def main(args):
     else:
         history_valid = []
         history_train = []
-        model = REDENT(
-            Loss=nn.MSELoss(),
-            in_channels=input_channels,
-            Activation=nn.GELU(),
-            hidden_channels=hc,
-            ks=kernel_size,
-            padding=padding,
-            padding_mode=padding_mode,
-            #pooling_size=pooling_size,
-            n_conv_layers=n_conv_layers,
-            out_features=input_size,
-            in_features=input_size,
-            out_channels=input_channels,
-            n_block_layers=args.n_block_layers,
-        )
+
+        if args.model_type=='REDENT':
+            model = REDENT(
+                Loss=nn.MSELoss(),
+                in_channels=input_channels,
+                Activation=nn.GELU(),
+                hidden_channels=hc,
+                ks=kernel_size,
+                padding=padding,
+                padding_mode=padding_mode,
+                #pooling_size=pooling_size,
+                n_conv_layers=n_conv_layers,
+                out_features=input_size,
+                in_features=input_size,
+                out_channels=input_channels,
+                n_block_layers=args.n_block_layers,
+            )
+        elif args.model_type=='Den2Cor':
+            model = Den2Cor(
+                Loss=nn.MSELoss(),
+                in_channels=input_channels,
+                Activation=nn.ReLU(),
+                hidden_channels=hc,
+                ks=kernel_size,
+                padding=padding,
+                padding_mode=padding_mode,
+                #pooling_size=pooling_size,
+                n_conv_layers=n_conv_layers,
+                out_features=input_size,
+                in_features=input_size,
+                out_channels=input_channels,
+                n_block_layers=args.n_block_layers,
+            )
+
     model = model.to(pt.double)
     model = model.to(device=device)
 
@@ -255,6 +280,7 @@ def main(args):
         bs=bs,
         split=0.8,
         pbc=False,
+        model_type=args.model_type
     )
 
     opt = get_optimizer(lr=lr, model=model)
