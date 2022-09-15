@@ -16,11 +16,9 @@ from src.training.utils import count_parameters
 
 
 
-
 def dataloader(
     type: str,
-    model_name: str,
-    cut: int,
+    session_name: str,
     n_instances: int,
     lr: int,
     diff_soglia: int,
@@ -30,7 +28,7 @@ def dataloader(
     variable_lr: bool,
 ):
 
-    session_name = model_name
+    session_name = session_name
 
     name_istances = f"number_istances_{n_instances}"
     session_name = session_name + "_" + name_istances
@@ -55,7 +53,7 @@ def dataloader(
     if type == "density":
 
         data = np.load(
-            "gradient_descent_ensamble_numpy/min_density_" + session_name + ".npz",
+            "data/gd_data/density_" + session_name + ".npz",
             allow_pickle=True,
         )
 
@@ -66,7 +64,7 @@ def dataloader(
     elif type == "energy":
 
         data = np.load(
-            "gradient_descent_ensamble_numpy/min_vs_gs_gradient_descent_"
+            "data/gd_data/eng_"
             + session_name
             + ".npz",
             allow_pickle=True,
@@ -79,7 +77,7 @@ def dataloader(
     elif type == "history":
 
         data = np.load(
-            "gradient_descent_ensamble_numpy/history_" + session_name + ".npz",
+            "data/gd_data/history/history_" + session_name + ".npz",
             allow_pickle=True,
         )
 
@@ -88,13 +86,6 @@ def dataloader(
         history_n = data["history_n"]
 
         return history, history_n
-
-
-
-def trapez(f: pt.tensor, dx: float):
-
-    f_roll = pt.roll(f, shifts=1, dims=-1)
-    return pt.sum(f_roll * f, dim=-1) * dx
 
 
 
