@@ -4,7 +4,7 @@ import torch as pt
 import numpy as np
 from torch.nn.modules import pooling
 from tqdm import tqdm, trange
-from src.training.models import REDENT, Den2Cor
+from src.training.models import REDENT, Den2Cor, Den2CorRESNET
 from src.training.utils import (
     get_optimizer,
     count_parameters,
@@ -22,7 +22,7 @@ import os
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers()
 
-parser.add_argument("--load", type=bool, help="Loading or not the model", default=False)
+parser.add_argument("--load", type=bool, help="Loading or not the model",action=argparse.BooleanOptionalAction)
 parser.add_argument("--name", type=str, help="name of the model", default=None)
 
 parser.add_argument(
@@ -228,7 +228,7 @@ def main(args):
             history_valid = []
             history_train = []
         print(len(history_train), len(history_valid))
-        model = pt.load(f"model_rep/unet/{args.name}",map_location=device)
+        model = pt.load(f"model_rep/{args.name}",map_location=device)
         model.loss_dft = nn.MSELoss()
         model_name = args.name
     else:
@@ -255,7 +255,7 @@ def main(args):
             model = Den2Cor(
                 Loss=nn.MSELoss(),
                 in_channels=input_channels,
-                Activation=nn.ReLU(),
+                Activation=nn.GELU(),
                 hidden_channels=hc,
                 ks=kernel_size,
                 padding=padding,
@@ -267,6 +267,24 @@ def main(args):
                 out_channels=input_channels,
                 n_block_layers=args.n_block_layers,
             )
+
+        elif args.model_type=='Den2CorRESNET':
+            model = Den2CorRESNET(
+                Loss=nn.MSELoss(),
+                in_channels=input_channels,
+                Activation=nn.GELU(),
+                hidden_channels=hc,
+                ks=kernel_size,
+                padding=padding,
+                padding_mode=padding_mode,
+                pooling_size=pooling_size,
+                n_conv_layers=n_conv_layers,
+                out_features=input_size,
+                in_features=input_size,
+                out_channels=input_channels,
+                n_block_layers=args.n_block_layers,
+            )
+
 
     model = model.to(pt.double)
     model = model.to(device=device)
