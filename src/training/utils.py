@@ -56,7 +56,7 @@ def make_data_loader_unet(
         #f_pathological=np.zeros((1))
         #Func=np.append(f_pathological,Func,axis=0)
 
-    if model_type=='Den2Cor' or model_type=='Den2CorRESNET':
+    if model_type=='Den2Cor' or model_type=='Den2CorRESNET' or model_type=='Den2CorCNN':
         n = data["density"]
         # insert the pathological value to avoid
         #n_pathological=-1*np.ones((1,n.shape[-1]))

@@ -17,7 +17,7 @@ from src.training.utils_analysis import dataloader, ResultsAnalysis
 #%% first analysis --> SCALABILITY AT THE CRITICAL VALUE for the 1nn
 n_sample=7
 t_range=[49,49,49,49,99,199,299]
-h_max=[2.7]*n_sample
+h_max=[4.5]*n_sample
 ls=[16,32,64,128,256,512,1024]
 n_instances=[100]*n_sample
 epochs = [[i * 100 for i in range(t_range[j])] for j in range(n_sample)] 
@@ -66,7 +66,8 @@ for i in range(n_sample):
     min_energy[ls[i]]=min_eng
     gs_energy[ls[i]]=gs_eng
     min_density[ls[i]]=min_n
-    gs_density[ls[i]]=gs_n        
+    gs_density[ls[i]]=gs_n
+    print(gs_n.shape)        
 
 
 # %% ANALYSIS OF THE CONVERGENCE AT DIFFERENT SIZES for the absolute value
@@ -116,12 +117,34 @@ plt.tick_params(
             width=5,
         )
 plt.xticks([1000,5000,10000,15000,20000,25000,30000],[r'$10^3$',r'$5 \cdot 10^3$',r'$10^4$',r'$1.5 \cdot 10^4$',r'$2 \cdot 10^4$',r'$2.5 \cdot 10^4$',r'$3 \cdot 10^4$'])
-plt.yticks([0.05,0.01,0.005,0.001],[r'$5 \cdot 10^{-2}$',r'$10^{-2}$',r'$5 \cdot 10^{-3}$',r'$ 10^{-3}$'])
-plt.axhline(0,color='red',label='zero point')
+plt.yticks([0.01,0.005,0.001],[r'$10^{-2}$',r'$5 \cdot 10^{-3}$',r'$ 10^{-3}$'])
+plt.axhline(-0.001,color='red',label='zero point')
 #plt.semilogy()
 plt.show()
 
+# %% ANALYSIS OF THE CONVERGENCE AT DIFFERENT SIZES for the deviation from the gs transverse magnetization
+fig=plt.figure(figsize=(10,10))
+for i,l in enumerate(ls):
+    dn_av=np.average((np.average(np.abs(min_density[l]-gs_density[l]),axis=-1)/np.average(np.abs(gs_density[l]),axis=-1)),axis=1)
+    plt.plot(epochs[i],dn_av,label=f'l={l}',linewidth=3)
+plt.legend(fontsize=20)
+plt.xlabel(r'$t$',fontsize=40)
+plt.ylabel(r'$\langle\frac{\left|\Delta z \right|}{\left| z \right|}\rangle$',fontsize=40)
 
+plt.tick_params(
+            top=True,
+            right=True,
+            labeltop=False,
+            labelright=False,
+            direction="in",
+            labelsize=20,
+            width=5,
+        )
+plt.xticks([1000,5000,10000,15000,20000,25000,30000],[r'$10^3$',r'$5 \cdot 10^3$',r'$10^4$',r'$1.5 \cdot 10^4$',r'$2 \cdot 10^4$',r'$2.5 \cdot 10^4$',r'$3 \cdot 10^4$'])
+plt.yticks([0.1,0.05,0.01,0.001],[r"$10^{-1}$",r'$5 \cdot 10^{-2}$',r'$10^{-2}$',r'$ 10^{-3}$'])
+plt.axhline(0.02,color='red',label='zero point')
+#plt.semilogy()
+plt.show()
 
 
 
@@ -159,7 +182,7 @@ plt.show()
 
 #%% PART I: loading the data
 batch=1000
-l=64
+l=32
 h_max=2.7
 data=np.load(f'data/correlation_1nn/test_1nn_correlation_map_h_{h_max}_n_1000_l_{l}_pbc_j_1.0.npz')
 z=data['density'][:batch]
@@ -167,7 +190,7 @@ xx=data['correlation'][:batch]
 z_torch=torch.tensor(z,dtype=torch.double)
 print(z.shape)
 
-model=torch.load(f'model_rep/1nn_den2cor/h_{h_max}_150k_augmentation_unet_periodic_den2cor_[40]_hc_5_ks_2_ps_1_nconv_0_nblock',map_location='cpu')
+model=torch.load(f'model_rep/1nn_den2cor/h_{h_max}_450k_unet_periodic_den2corRESNET_[40, 40]_hc_5_ks_1_ps_2_nconv_0_nblock',map_location='cpu')
 model.eval()
 
 xx_ml=model(z_torch).detach().numpy()
@@ -176,7 +199,7 @@ dxx=np.sqrt(np.average((xx-xx_ml)**2)/np.average((xx)**2))
     
 print(dxx)
 #%% PART II(a): accuracy analysis
-for i in range(1):
+for i in range(10):
     plt.title('comparison correlation')
     plt.plot(xx[i,10,:])
     plt.plot(xx_ml[i,10,:])

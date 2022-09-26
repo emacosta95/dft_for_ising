@@ -4,7 +4,7 @@ import torch as pt
 import numpy as np
 from torch.nn.modules import pooling
 from tqdm import tqdm, trange
-from src.training.models import REDENT, Den2Cor, Den2CorRESNET
+from src.training.models import REDENT, Den2Cor, Den2CorCNN, Den2CorRESNET
 from src.training.utils import (
     get_optimizer,
     count_parameters,
@@ -270,6 +270,23 @@ def main(args):
 
         elif args.model_type=='Den2CorRESNET':
             model = Den2CorRESNET(
+                Loss=nn.MSELoss(),
+                in_channels=input_channels,
+                Activation=nn.GELU(),
+                hidden_channels=hc,
+                ks=kernel_size,
+                padding=padding,
+                padding_mode=padding_mode,
+                pooling_size=pooling_size,
+                n_conv_layers=n_conv_layers,
+                out_features=input_size,
+                in_features=input_size,
+                out_channels=input_channels,
+                n_block_layers=args.n_block_layers,
+            )
+
+        elif args.model_type=='Den2CorCNN':
+            model = Den2CorCNN(
                 Loss=nn.MSELoss(),
                 in_channels=input_channels,
                 Activation=nn.GELU(),
