@@ -133,3 +133,4 @@ dmypy.json
 output/
 model_rep/
 data/
+losses_dft_pytorch/
