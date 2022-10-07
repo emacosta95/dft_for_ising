@@ -4,7 +4,14 @@ import torch as pt
 import numpy as np
 from torch.nn.modules import pooling
 from tqdm import tqdm, trange
-from src.training.models import REDENT, Den2Cor, Den2CorCNN, Den2CorRESNET
+from src.training.models import (
+    REDENT,
+    Den2Cor,
+    Den2CorCNN,
+    Den2CorRECURRENT,
+    Den2CorRESNET,
+    Den2CorLSTM,
+)
 from src.training.utils import (
     get_optimizer,
     count_parameters,
@@ -22,7 +29,12 @@ import os
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers()
 
-parser.add_argument("--load", type=bool, help="Loading or not the model",action=argparse.BooleanOptionalAction)
+parser.add_argument(
+    "--load",
+    type=bool,
+    help="Loading or not the model",
+    action=argparse.BooleanOptionalAction,
+)
 parser.add_argument("--name", type=str, help="name of the model", default=None)
 
 parser.add_argument(
@@ -91,8 +103,6 @@ parser.add_argument(
 )
 
 
-
-
 parser.add_argument(
     "--input_channels", type=int, help="# input channels (default=1)", default=1
 )
@@ -107,9 +117,9 @@ parser.add_argument(
 parser.add_argument(
     "--hidden_channels",
     type=int,
-    nargs='+',
+    nargs="+",
     help="list of hidden channels (default=120)",
-    default=[30,60,120],
+    default=[30, 60, 120],
 )
 
 parser.add_argument(
@@ -180,7 +190,7 @@ def main(args):
     padding = args.padding  # 6
     padding_mode = args.padding_mode
     kernel_size = args.kernel_size  # 13
-    n_conv_layers=len(args.hidden_channels)
+    n_conv_layers = len(args.hidden_channels)
     # Select the number of threads
     pt.set_num_threads(args.num_threads)
     # Initialize the seed
@@ -204,14 +214,9 @@ def main(args):
     name_ks = f"_{kernel_size}_ks"
     name_pooling_size = f"_{pooling_size}_ps"
     name_n_conv = f"_{len(hc)}_nconv"
-    name_n_block=f'_{args.n_block_layers}_nblock'
+    name_n_block = f"_{args.n_block_layers}_nblock"
     model_name = (
-        model_name
-        + name_hc
-        + name_ks
-        + name_pooling_size
-        + name_n_conv
-        + name_n_block
+        model_name + name_hc + name_ks + name_pooling_size + name_n_conv + name_n_block
     )
     # Set the dataset path
     file_name = args.data_path
@@ -228,14 +233,14 @@ def main(args):
             history_valid = []
             history_train = []
         print(len(history_train), len(history_valid))
-        model = pt.load(f"model_rep/{args.name}",map_location=device)
+        model = pt.load(f"model_rep/{args.name}", map_location=device)
         model.loss_dft = nn.MSELoss()
         model_name = args.name
     else:
         history_valid = []
         history_train = []
 
-        if args.model_type=='REDENT':
+        if args.model_type == "REDENT":
             model = REDENT(
                 Loss=nn.MSELoss(),
                 in_channels=input_channels,
@@ -244,14 +249,14 @@ def main(args):
                 ks=kernel_size,
                 padding=padding,
                 padding_mode=padding_mode,
-                #pooling_size=pooling_size,
+                # pooling_size=pooling_size,
                 n_conv_layers=n_conv_layers,
                 out_features=input_size,
                 in_features=input_size,
                 out_channels=input_channels,
                 n_block_layers=args.n_block_layers,
             )
-        elif args.model_type=='Den2Cor':
+        elif args.model_type == "Den2Cor":
             model = Den2Cor(
                 Loss=nn.MSELoss(),
                 in_channels=input_channels,
@@ -260,7 +265,7 @@ def main(args):
                 ks=kernel_size,
                 padding=padding,
                 padding_mode=padding_mode,
-                #pooling_size=pooling_size,
+                # pooling_size=pooling_size,
                 n_conv_layers=n_conv_layers,
                 out_features=input_size,
                 in_features=input_size,
@@ -268,7 +273,7 @@ def main(args):
                 n_block_layers=args.n_block_layers,
             )
 
-        elif args.model_type=='Den2CorRESNET':
+        elif args.model_type == "Den2CorRESNET":
             model = Den2CorRESNET(
                 Loss=nn.MSELoss(),
                 in_channels=input_channels,
@@ -285,8 +290,8 @@ def main(args):
                 n_block_layers=args.n_block_layers,
             )
 
-        elif args.model_type=='Den2CorCNN':
-            model = Den2CorCNN(
+        elif args.model_type == "Den2CorRECURRENT":
+            model = Den2CorRECURRENT(
                 Loss=nn.MSELoss(),
                 in_channels=input_channels,
                 Activation=nn.GELU(),
@@ -302,6 +307,22 @@ def main(args):
                 n_block_layers=args.n_block_layers,
             )
 
+        elif args.model_type == "Den2CorLSTM":
+            model = Den2CorLSTM(
+                Loss=nn.MSELoss(),
+                in_channels=input_channels,
+                Activation=nn.GELU(),
+                hidden_channels=hc,
+                ks=kernel_size,
+                padding=padding,
+                padding_mode=padding_mode,
+                pooling_size=pooling_size,
+                n_conv_layers=n_conv_layers,
+                out_features=input_size,
+                in_features=input_size,
+                out_channels=input_channels,
+                n_block_layers=args.n_block_layers,
+            )
 
     model = model.to(pt.double)
     model = model.to(device=device)
@@ -311,11 +332,7 @@ def main(args):
     print(args)
 
     train_dl, valid_dl = make_data_loader_unet(
-        file_name=file_name,
-        bs=bs,
-        split=0.8,
-        pbc=False,
-        model_type=args.model_type
+        file_name=file_name, bs=bs, split=0.8, pbc=False, model_type=args.model_type
     )
 
     opt = get_optimizer(lr=lr, model=model)
@@ -333,7 +350,7 @@ def main(args):
         loss_func=nn.MSELoss(),
         patiance=patiance,
         early_stopping=early_stopping,
-        device=device
+        device=device,
     )
 
     print(model)

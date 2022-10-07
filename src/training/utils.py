@@ -14,9 +14,6 @@ from torch.utils.data import Dataset, TensorDataset, DataLoader
 import matplotlib.pyplot as plt
 
 
-
-
-
 # %%
 
 
@@ -31,8 +28,10 @@ def count_parameters(model: pt.nn.Module) -> int:
 
 # %%
 
+
 def make_data_loader_unet(
-    file_name: str, pbc: bool, split: float, bs: int, model_type:str, img: bool = False) -> tuple:
+    file_name: str, pbc: bool, split: float, bs: int, model_type: str, img: bool = False
+) -> tuple:
     """
     This function create a data loader from a .npz file
 
@@ -47,30 +46,34 @@ def make_data_loader_unet(
 
     data = np.load(file_name)
 
-    if model_type=='REDENT':
+    if model_type == "REDENT":
         n = data["density"]
         # insert the pathological value to avoid
-        #n_pathological=-1*np.ones((1,n.shape[-1]))
-        #n=np.append(n_pathological,n,axis=0)
-        Func = data['density_F']
-        #f_pathological=np.zeros((1))
-        #Func=np.append(f_pathological,Func,axis=0)
+        # n_pathological=-1*np.ones((1,n.shape[-1]))
+        # n=np.append(n_pathological,n,axis=0)
+        Func = data["density_F"]
+        # f_pathological=np.zeros((1))
+        # Func=np.append(f_pathological,Func,axis=0)
 
-    if model_type=='Den2Cor' or model_type=='Den2CorRESNET' or model_type=='Den2CorCNN':
+    if (
+        model_type == "Den2Cor"
+        or model_type == "Den2CorRESNET"
+        or model_type == "Den2CorRECURRENT"
+        or model_type == "Den2CorLSTM"
+    ):
         n = data["density"]
         # insert the pathological value to avoid
-        #n_pathological=-1*np.ones((1,n.shape[-1]))
-        #n=np.append(n_pathological,n,axis=0)
-        Func = data['correlation']
-        #f_pathological=np.zeros((1))
-        #Func=np.append(f_pathological,Func,axis=0)
-
+        # n_pathological=-1*np.ones((1,n.shape[-1]))
+        # n=np.append(n_pathological,n,axis=0)
+        Func = data["correlation"]
+        # f_pathological=np.zeros((1))
+        # Func=np.append(f_pathological,Func,axis=0)
 
     N_train = int(n.shape[0] * split)
     train_ds = TensorDataset(pt.tensor(n[0:N_train]), pt.tensor(Func[0:N_train]))
     train_dl = DataLoader(train_ds, bs, shuffle=True)
     valid_ds = TensorDataset(pt.tensor(n[N_train:]), pt.tensor(Func[N_train:]))
-    valid_dl = DataLoader(valid_ds, 2 * bs,shuffle=True)
+    valid_dl = DataLoader(valid_ds, 2 * bs, shuffle=True)
 
     return train_dl, valid_dl
 
@@ -331,6 +334,3 @@ def trapez(f: pt.tensor, dx: float):
 
     f_roll = pt.roll(f, shifts=1, dims=-1)
     return pt.sum(f_roll * f, dim=-1) * dx
-
-
-

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from scipy import fft, ifft
 import os
 from src.training.utils_analysis import dataloader, ResultsAnalysis
-from src.training.models import Energy
+
 
 
 
