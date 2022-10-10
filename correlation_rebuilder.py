@@ -1,10 +1,9 @@
 #%%
-from statistics import correlation
 import numpy as np
 import matplotlib.pyplot as plt
 
-l = 16
-h_max = 2.7
+l = 64
+h_max = 3.0
 ndata = 1000
 data = np.load(
     f"data/correlation_1nn/test_1nn_correlation_map_h_{h_max}_n_{ndata}_l_{l}_pbc_j_1.0.npz"
@@ -43,7 +42,7 @@ np.savez(
 import numpy as np
 import matplotlib.pyplot as plt
 
-l = 16
+l = 15
 hs_max = [1.0, 2.7, 4.5]
 ndata = 150000
 

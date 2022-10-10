@@ -316,28 +316,19 @@ for i in range(n_sample):
 
 
 
-
-
-
-
-
-
-
-
-
 # CORRELATION MAP from density to correlation (TEST)
 
 #%% PART I: loading the data
-batch=100
+batch=1000
 l=64
-h_max=2.7
+h_max=3.0
 data=np.load(f'data/correlation_1nn_rebuilt/test_1nn_correlation_map_h_{h_max}_1000_l_{l}_pbc_j_1.0.npz')
 z=data['density'][:batch]
 xx=data['correlation'][:batch]
 z_torch=torch.tensor(z,dtype=torch.double)
 print(z.shape)
 #model=torch.load(f'model_rep/1nn_den2cor/h_{h_max}_150k_unet_periodic_den2corRESNET_[40, 40, 40, 40]_hc_5_ks_1_ps_4_nconv_0_nblock',map_location='cpu')
-model=torch.load(f'model_rep/1nn_den2cor/h_{h_max}_150k_augmentation_unet_periodic_den2corLST_[10, 10]_hc_5_ks_1_ps_2_nconv_0_nblock',map_location='cpu')
+model=torch.load(f'model_rep/1nn_den2cor/h_{h_max}_150k_augmentation_unet_periodic_den2corLSTM_[10, 10]_hc_5_ks_1_ps_2_nconv_0_nblock',map_location='cpu')
 model.eval()
 
 xx_ml=model(z_torch).detach().numpy()
@@ -346,24 +337,10 @@ dxx=np.sqrt(np.average((xx-xx_ml)**2)/np.average((xx)**2))
     
 print(dxx)
 #%% PART II(a): accuracy analysis
-for i in range(10):
-    plt.title('comparison correlation')
-    plt.plot(xx[i,0,])
-    plt.plot(xx_ml[i,0,])
-    plt.show()
-    plt.title('magn z')
-    plt.plot(z[i,:])
-    plt.show()
 
-    #accuracy measure L2
-    plt.imshow(xx[i])
-    plt.colorbar()
-    plt.show()
-    plt.imshow(xx_ml[i])
-    plt.colorbar()
-    plt.show()
 dxx=np.sqrt(np.average((xx-xx_ml)**2)/np.average((xx)**2))
 print(dxx)
+
 
 
 
@@ -387,7 +364,12 @@ plt.colorbar()
 plt.show()
 dxx=np.sqrt(np.average((xx-xx_ml)**2)/np.average((xx)**2))
 print(dxx)
-    
+
+plt.plot(xx[:,0],label='exact')
+plt.plot(xx_ml[:,0],label='ml')
+plt.legend()
+plt.show()
+ 
     
 #%%
 for i in range(xx.shape[1]):

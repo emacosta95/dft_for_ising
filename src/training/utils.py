@@ -14,6 +14,23 @@ from torch.utils.data import Dataset, TensorDataset, DataLoader
 import matplotlib.pyplot as plt
 
 
+class ScalableCorrelationDataset(Dataset):
+    def __init__(self, ns: list, corrs: list, noise: float = 0.1):
+        super().__init__()  # In python 3 this is enough
+
+        self.ns = ns
+        self.corrs = corrs
+
+    def __len__(self):
+        return self.n_points
+
+    def __getitem__(self, idx):
+        return {
+            "x": [self.ns[i][idx] for i in range(len(self.ns))],
+            "y": [self.corrs[i][idx] for i in range(len(self.ns))],
+        }
+
+
 # %%
 
 
@@ -73,6 +90,47 @@ def make_data_loader_unet(
     train_ds = TensorDataset(pt.tensor(n[0:N_train]), pt.tensor(Func[0:N_train]))
     train_dl = DataLoader(train_ds, bs, shuffle=True)
     valid_ds = TensorDataset(pt.tensor(n[N_train:]), pt.tensor(Func[N_train:]))
+    valid_dl = DataLoader(valid_ds, 2 * bs, shuffle=True)
+
+    return train_dl, valid_dl
+
+
+def make_data_loader_correlation_scale(
+    file_names: list,
+    pbc: bool,
+    split: float,
+    bs: int,
+    model_type: str,
+    img: bool = False,
+) -> tuple:
+    """
+    This function create a data loader from a .npz file
+
+    Arguments
+
+    file_name: name of the npz data_file (numpy format)
+    pbc: if True the input data is extended in a periodic fashion with 128 components both on the top and bottom (128+256+128)
+    split: the ratio valid_data/train_data
+    bs: batch size of the data loader
+    img: if True reshape the x data into a one dimensional image        (N_dataset,1,dimension)
+    """
+    ns_train = []
+    corrs_train = []
+    ns_valid = []
+    corrs_valid = []
+    for file_name in file_names:
+        data = np.load(file_name)
+        n = data["density"]
+        corr = data["correlation"]
+        N_train = int(n.shape[0] * split)
+        ns_train.append(n[0:N_train])
+        corrs_train.append(corr[0:N_train])
+        ns_valid.append(n[N_train:])
+        corrs_valid.append(corr[N_train:])
+
+    train_ds = ScalableCorrelationDataset(ns_train, corrs_train)
+    train_dl = DataLoader(train_ds, bs, shuffle=True)
+    valid_ds = ScalableCorrelationDataset(ns_valid, corrs_valid)
     valid_dl = DataLoader(valid_ds, 2 * bs, shuffle=True)
 
     return train_dl, valid_dl
@@ -334,3 +392,6 @@ def trapez(f: pt.tensor, dx: float):
 
     f_roll = pt.roll(f, shifts=1, dims=-1)
     return pt.sum(f_roll * f, dim=-1) * dx
+
+
+# %%
