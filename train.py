@@ -8,6 +8,7 @@ from src.training.models import (
     REDENT,
     Den2Cor,
     Den2CorCNN,
+    Den2CorLSTM_beta,
     Den2CorRECURRENT,
     Den2CorRESNET,
     Den2CorLSTM,
@@ -16,6 +17,7 @@ from src.training.utils import (
     get_optimizer,
     count_parameters,
     from_txt_to_bool,
+    make_data_loader_correlation_scale,
     make_data_loader_unet,
 )
 from src.training.train_module import fit
@@ -23,6 +25,7 @@ import torch.nn as nn
 import argparse
 import os
 
+#%%
 
 # parser arguments
 
@@ -35,6 +38,14 @@ parser.add_argument(
     help="Loading or not the model",
     action=argparse.BooleanOptionalAction,
 )
+
+parser.add_argument(
+    "--scalable_training",
+    type=bool,
+    help="Create a set of scalable datasets",
+    action=argparse.BooleanOptionalAction,
+)
+
 parser.add_argument("--name", type=str, help="name of the model", default=None)
 
 parser.add_argument(
@@ -308,7 +319,7 @@ def main(args):
             )
 
         elif args.model_type == "Den2CorLSTM":
-            model = Den2CorLSTM(
+            model = Den2CorLSTM_beta(
                 Loss=nn.MSELoss(),
                 in_channels=input_channels,
                 Activation=nn.GELU(),
@@ -331,9 +342,26 @@ def main(args):
     print(count_parameters(model))
     print(args)
 
-    train_dl, valid_dl = make_data_loader_unet(
-        file_name=file_name, bs=bs, split=0.8, pbc=False, model_type=args.model_type
-    )
+    if args.scalable_training:
+
+        file_name = [
+            "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_2.7_150000_l_8_pbc_j_1.0.npz",
+            "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_2.7_150000_l_12_pbc_j_1.0.npz",
+            "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_2.7_150000_l_16_pbc_j_1.0.npz",
+        ]
+
+        train_dl, valid_dl = make_data_loader_correlation_scale(
+            file_names=file_name, bs=bs, split=0.8
+        )
+
+    else:
+        train_dl, valid_dl = make_data_loader_unet(
+            file_name=file_name,
+            bs=bs,
+            split=0.8,
+            pbc=False,
+            model_type=args.model_type,
+        )
 
     opt = get_optimizer(lr=lr, model=model)
     fit(

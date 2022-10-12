@@ -2,11 +2,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-l = 64
-h_max = 3.0
-ndata = 1000
+l = 14
+h_max = 2.7
+ndata = 150000
 data = np.load(
-    f"data/correlation_1nn/test_1nn_correlation_map_h_{h_max}_n_{ndata}_l_{l}_pbc_j_1.0.npz"
+    f"data/correlation_1nn/train_1nn_correlation_map_h_{h_max}_n_{ndata}_l_{l}_pbc_j_1.0.npz"
 )
 
 xx = data["correlation"]

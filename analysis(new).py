@@ -328,7 +328,7 @@ xx=data['correlation'][:batch]
 z_torch=torch.tensor(z,dtype=torch.double)
 print(z.shape)
 #model=torch.load(f'model_rep/1nn_den2cor/h_{h_max}_150k_unet_periodic_den2corRESNET_[40, 40, 40, 40]_hc_5_ks_1_ps_4_nconv_0_nblock',map_location='cpu')
-model=torch.load(f'model_rep/1nn_den2cor/h_{h_max}_150k_augmentation_unet_periodic_den2corLSTM_[10, 10]_hc_5_ks_1_ps_2_nconv_0_nblock',map_location='cpu')
+model=torch.load(f'model_rep/1nn_den2cor/h_{h_max}_150k_augmentation_unet_periodic_den2corLSTM_[20, 40]_hc_5_ks_2_ps_2_nconv_0_nblock',map_location='cpu')
 model.eval()
 
 xx_ml=model(z_torch).detach().numpy()

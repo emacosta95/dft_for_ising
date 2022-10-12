@@ -12,23 +12,7 @@ from torchmetrics import R2Score
 from tqdm.notebook import tqdm, trange
 from torch.utils.data import Dataset, TensorDataset, DataLoader
 import matplotlib.pyplot as plt
-
-
-class ScalableCorrelationDataset(Dataset):
-    def __init__(self, ns: list, corrs: list, noise: float = 0.1):
-        super().__init__()  # In python 3 this is enough
-
-        self.ns = ns
-        self.corrs = corrs
-
-    def __len__(self):
-        return self.n_points
-
-    def __getitem__(self, idx):
-        return {
-            "x": [self.ns[i][idx] for i in range(len(self.ns))],
-            "y": [self.corrs[i][idx] for i in range(len(self.ns))],
-        }
+from src.training.dataset import ScalableCorrelationDataset
 
 
 # %%
@@ -97,11 +81,8 @@ def make_data_loader_unet(
 
 def make_data_loader_correlation_scale(
     file_names: list,
-    pbc: bool,
     split: float,
     bs: int,
-    model_type: str,
-    img: bool = False,
 ) -> tuple:
     """
     This function create a data loader from a .npz file
@@ -123,11 +104,13 @@ def make_data_loader_correlation_scale(
         n = data["density"]
         corr = data["correlation"]
         N_train = int(n.shape[0] * split)
+        print(N_train)
         ns_train.append(n[0:N_train])
         corrs_train.append(corr[0:N_train])
         ns_valid.append(n[N_train:])
         corrs_valid.append(corr[N_train:])
 
+    print(f"bs={bs}")
     train_ds = ScalableCorrelationDataset(ns_train, corrs_train)
     train_dl = DataLoader(train_ds, bs, shuffle=True)
     valid_ds = ScalableCorrelationDataset(ns_valid, corrs_valid)

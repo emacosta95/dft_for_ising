@@ -2154,19 +2154,23 @@ class Den2CorLSTM_beta(nn.Module):
         return corr
 
     def train_step(self, batch: Tuple, device: str):
-        x, y = batch
-        x = x.to(device=device, dtype=torch.double)
-        y = y.to(device=device, dtype=torch.double)
-        x = self.forward(x).squeeze()
-        loss = self.loss(x, y)
+        loss = 0
+        for i, bt in enumerate((batch)):
+            x, y = bt
+            x = x.to(device=device, dtype=torch.double)
+            # print(x.shape)
+            y = y.to(device=device, dtype=torch.double)
+            x = self.forward(x).squeeze()
+            loss = +self.loss(x, y)
         return loss
 
     def r2_computation(self, batch: Tuple, device: str, r2):
-        x, y = batch
-        x = self.forward(x.to(dtype=torch.double, device=device))
-        y = y.double()
-        # print(y.shape,x.shape)
-        r2.update(x.cpu().detach().view(-1), y.cpu().detach().view(-1))
+        for i, bt in enumerate(batch):
+            x, y = bt
+            x = self.forward(x.to(dtype=torch.double, device=device))
+            y = y.double()
+            # print(y.shape,x.shape)
+            r2.update(x.cpu().detach().view(-1), y.cpu().detach().view(-1))
         return r2
 
     def save(
