@@ -1,31 +1,24 @@
-from pyexpat import model
-import random
-import torch as pt
-import numpy as np
-from torch.nn.modules import pooling
-from tqdm import tqdm, trange
-from src.training.models import (
-    REDENT,
-    Den2Cor,
-    Den2CorCNN,
-    Den2CorLSTM_beta,
-    Den2CorRECURRENT,
-    Den2CorRESNET,
-    Den2CorLSTM,
-)
-from src.training.utils import (
-    get_optimizer,
-    count_parameters,
-    from_txt_to_bool,
-    make_data_loader_correlation_scale,
-    make_data_loader_unet,
-)
-from src.training.train_module import fit
-import torch.nn as nn
 import argparse
 import os
+import random
 
-#%%
+import numpy as np
+import torch as pt
+import torch.nn as nn
+from pyexpat import model
+from torch.nn.modules import pooling
+from tqdm import tqdm, trange
+
+from src.training.models import (REDENT, Den2Cor, Den2CorCNN, Den2CorLSTM,
+                                 Den2CorLSTM_beta, Den2CorLSTM_gamma,
+                                 Den2CorRECURRENT, Den2CorRESNET)
+from src.training.train_module import fit
+from src.training.utils import (count_parameters, from_txt_to_bool,
+                                get_optimizer,
+                                make_data_loader_correlation_scale,
+                                make_data_loader_unet)
+
+# %%
 
 # parser arguments
 
@@ -51,8 +44,10 @@ parser.add_argument("--name", type=str, help="name of the model", default=None)
 parser.add_argument(
     "--data_path",
     type=str,
-    help="seed for pytorch and numpy (default=data/unet_dataset/train_unet_periodic_64_l_3.0_h_150000_n.npz)",
-    default="data/unet_dataset/train_unet_periodic_64_l_3.0_h_150000_n.npz",
+    # nargs="+",
+    help="list of data path (default=data/unet_dataset/train_unet_periodic_16_l_3.0_h_150000_n.npz)",
+    default=["data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_3.6_150000_l_8_pbc_j_1.0.npz",
+             "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_3.6_150000_l_12_pbc_j_1.0.npz", "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_3.6_150000_l_16_pbc_j_1.0.npz"]
 )
 
 parser.add_argument(
@@ -230,7 +225,6 @@ def main(args):
         model_name + name_hc + name_ks + name_pooling_size + name_n_conv + name_n_block
     )
     # Set the dataset path
-    file_name = args.data_path
     if args.load:
         print(f"loading the model {args.name}")
         if os.path.isfile(f"losses_dft_pytorch/{args.name}" + "_loss_valid_dft"):
@@ -301,8 +295,8 @@ def main(args):
                 n_block_layers=args.n_block_layers,
             )
 
-        elif args.model_type == "Den2CorRECURRENT":
-            model = Den2CorRECURRENT(
+        elif args.model_type == "Den2Magn":
+            model = REDENT(
                 Loss=nn.MSELoss(),
                 in_channels=input_channels,
                 Activation=nn.GELU(),
@@ -310,7 +304,7 @@ def main(args):
                 ks=kernel_size,
                 padding=padding,
                 padding_mode=padding_mode,
-                pooling_size=pooling_size,
+                # pooling_size=pooling_size,
                 n_conv_layers=n_conv_layers,
                 out_features=input_size,
                 in_features=input_size,
@@ -322,7 +316,7 @@ def main(args):
             model = Den2CorLSTM_beta(
                 Loss=nn.MSELoss(),
                 in_channels=input_channels,
-                Activation=nn.GELU(),
+                Activation=nn.Softplus(),
                 hidden_channels=hc,
                 ks=kernel_size,
                 padding=padding,
@@ -344,19 +338,13 @@ def main(args):
 
     if args.scalable_training:
 
-        file_name = [
-            "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_2.7_150000_l_8_pbc_j_1.0.npz",
-            "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_2.7_150000_l_12_pbc_j_1.0.npz",
-            "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_2.7_150000_l_16_pbc_j_1.0.npz",
-        ]
-
         train_dl, valid_dl = make_data_loader_correlation_scale(
-            file_names=file_name, bs=bs, split=0.8
+            file_names=args.data_path, bs=bs, split=0.8
         )
 
     else:
         train_dl, valid_dl = make_data_loader_unet(
-            file_name=file_name,
+            file_name=args.data_path,
             bs=bs,
             split=0.8,
             pbc=False,

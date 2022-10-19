@@ -1,12 +1,12 @@
-#%%
-import numpy as np
+# %%
 import matplotlib.pyplot as plt
+import numpy as np
 
-l = 14
-h_max = 2.7
+l = 16
+h_max = 3.6
 ndata = 150000
 data = np.load(
-    f"data/correlation_1nn/train_1nn_correlation_map_h_{h_max}_n_{ndata}_l_{l}_pbc_j_1.0.npz"
+    f"data/correlation_1nn/test_1nn_correlation_map_h_{h_max}_n_{ndata}_l_{l}_pbc_j_1.0.npz"
 )
 
 xx = data["correlation"]
@@ -30,46 +30,12 @@ plt.show()
 for i in range(int(z.shape[-1] / 2) - 1):
     plt.plot(ms[0, i, :])
     plt.show()
-#%%
+# %%
 print(ms.shape)
 np.savez(
-    f"data/correlation_1nn_rebuilt/test_1nn_correlation_map_h_{h_max}_{ndata}_l_{l}_pbc_j_1.0.npz",
+    f"data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_{h_max}_{ndata}_l_{l}_pbc_j_1.0.npz",
     density=z,
     correlation=ms,
-)
-# %% create a mixed dataset
-
-import numpy as np
-import matplotlib.pyplot as plt
-
-l = 15
-hs_max = [1.0, 2.7, 4.5]
-ndata = 150000
-
-for h_max in hs_max:
-    data = np.load(
-        f"data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_{h_max}_{ndata}_l_{l}_pbc_j_1.0.npz"
-    )
-
-    xx = data["correlation"]
-    z = data["density"]
-
-    if h_max == 1.0:
-        xxs = xx
-        zs = z
-    else:
-        xxs = np.append(xxs, xx, axis=0)
-        zs = np.append(zs, z, axis=0)
-
-
-r = np.random.permutation(zs.shape[0])
-zs = zs[r]
-xxs = xxs[r]
-
-np.savez(
-    f"data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_mixed_n_{ndata}_l_{l}_pbc_j_1.0.npz",
-    density=zs,
-    correlation=xxs,
 )
 
 # %%

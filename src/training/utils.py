@@ -1,19 +1,20 @@
 # %%
 # Libraries
-from typing import List, Dict, Tuple
-import numpy as np
 import argparse
+import os
+from typing import Dict, List, Tuple
+
+import matplotlib.pyplot as plt
+import numpy as np
 import torch as pt
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import os
+from torch.utils.data import DataLoader, Dataset, TensorDataset
 from torchmetrics import R2Score
 from tqdm.notebook import tqdm, trange
-from torch.utils.data import Dataset, TensorDataset, DataLoader
-import matplotlib.pyplot as plt
-from src.training.dataset import ScalableCorrelationDataset
 
+from src.training.dataset import ScalableCorrelationDataset
 
 # %%
 
@@ -67,6 +68,16 @@ def make_data_loader_unet(
         # n_pathological=-1*np.ones((1,n.shape[-1]))
         # n=np.append(n_pathological,n,axis=0)
         Func = data["correlation"]
+        # f_pathological=np.zeros((1))
+        # Func=np.append(f_pathological,Func,axis=0)
+
+    if model_type == "Den2Magn":
+
+        n = data["density"]
+        # insert the pathological value to avoid
+        # n_pathological=-1*np.ones((1,n.shape[-1]))
+        # n=np.append(n_pathological,n,axis=0)
+        Func = data["magnetization_x"]
         # f_pathological=np.zeros((1))
         # Func=np.append(f_pathological,Func,axis=0)
 
