@@ -2,9 +2,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-l = 16
+l = 64
 h_max = 3.6
-ndata = 150000
+ndata = 1000
 data = np.load(
     f"data/correlation_1nn/test_1nn_correlation_map_h_{h_max}_n_{ndata}_l_{l}_pbc_j_1.0.npz"
 )
@@ -27,13 +27,13 @@ for j in range(1, int(z.shape[-1] / 2)):
 plt.imshow(xx[0])
 plt.colorbar()
 plt.show()
-for i in range(int(z.shape[-1] / 2) - 1):
-    plt.plot(ms[0, i, :])
-    plt.show()
+# for i in range(int(z.shape[-1] / 2) - 1):
+#     plt.plot(ms[0, i, :])
+#     plt.show()
 # %%
 print(ms.shape)
 np.savez(
-    f"data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_{h_max}_{ndata}_l_{l}_pbc_j_1.0.npz",
+    f"data/correlation_1nn_rebuilt/test_1nn_correlation_map_h_{h_max}_{ndata}_l_{l}_pbc_j_1.0.npz",
     density=z,
     correlation=ms,
 )

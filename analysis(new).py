@@ -334,7 +334,7 @@ logc_ml_l=[]
 batch=1000
 nbatch=10
 minibatch=int(batch/nbatch)
-l=16
+l=64
 h_max=3.6
 device='cuda'
 data=np.load(f'data/correlation_1nn_rebuilt/test_1nn_correlation_map_h_{h_max}_1000_l_{l}_pbc_j_1.0.npz')
@@ -349,6 +349,7 @@ model.eval()
 
 
 for i in trange(nbatch):
+    print(i)
     x=model(z_torch[minibatch*i:minibatch*(i+1)]).cpu().detach().numpy()
     if i==0:
         xx_ml=x
@@ -459,10 +460,12 @@ g_ml=np.average(xx_ml,axis=-1)
 #%%
 x=np.arange(int(l/2)-1)
 
-plt.plot(np.log(x),np.log(g),label=f'g')
-plt.plot(np.log(x),np.log(g_ml),label=f'g_ml')
+plt.plot(x,(g),label=f'g')
+plt.plot((x),(g_ml),label=f'g_ml')
+#plt.axvline(x=2)
+#plt.axvline(x=45)
 plt.legend()
-#plt.loglog()
+plt.loglog()
 plt.show()
 
 nu=np.average((np.log(g[7:35]))/np.log(x[7:35]))
@@ -479,11 +482,11 @@ print(nu_ml)
 #%% compute the slope of the curve
 from scipy import stats
 
-slope_0, intercept, r_value, p_value, std_err = stats.linregress(np.log(x[7:35]), np.log(g)[7:35])
+slope_0, intercept, r_value, p_value, std_err = stats.linregress(np.log(x[2:45]), np.log(g)[2:45])
 
 print(slope_0,intercept,r_value)
 
-slope_1, intercept_1, r_value_1, p_value_1, std_err_1 = stats.linregress(np.log(x[7:35]), np.log(g_ml)[7:35])
+slope_1, intercept_1, r_value_1, p_value_1, std_err_1 = stats.linregress(np.log(x[2:45]), np.log(g_ml)[2:45])
 
 print(slope_1,intercept,r_value)
 
@@ -509,7 +512,7 @@ for i in range(xx.shape[-1]):
 # %% Den2Magn Analysis
 
 #%% Testing the neural network by using DMRG dataset
-h_max=4.5
+h_max=1.8
 ls=[16,32,64]
 ns=[100,100,100]
 
@@ -523,7 +526,7 @@ for i in range(len(ls)):
     # data=np.load('data/den2magn_dataset_1nn/train_unet_periodic_1nn_8_l_4.50_h_150000_n.npz')
     x=torch.tensor(data['magnetization_x'],dtype=torch.double)
     z=torch.tensor(data['density'],dtype=torch.double)
-    model=torch.load(f'model_rep/1nn_den2magn/h_{h_max}_15k_unet_periodic_den2magn_[20, 40]_hc_5_ks_2_ps_2_nconv_0_nblock',map_location='cpu')
+    model=torch.load(f'model_rep/1nn_den2magn/h_{h_max:.1f}_15k_unet_periodic_den2magn_[20, 40]_hc_5_ks_2_ps_2_nconv_0_nblock',map_location='cpu')
     
     x_ml=model(z).detach().numpy()
     xs_ml[ls[i]]=np.abs(x_ml)
