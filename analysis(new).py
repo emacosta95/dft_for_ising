@@ -295,7 +295,7 @@ for r in range(n_sample):
     model.eval()
     v=np.load(f'data/dataset_1nn/valid_unet_periodic_{ls[r]}_l_{h_max[r]}_h_15000_n.npz')['potential']
     print('v_shape=',v.shape)
-    dg,dz=nuv_representability_check(model,z=min_n,v=v[:gs_n.shape[0]],plot=True,gs_z=gs_n)
+    dg,dz=nuv_representability_check(model,z=gs_n,v=v[:gs_n.shape[0]],plot=True,gs_z=gs_n)
     
     
     min_energy[h_max[r]]=min_eng
