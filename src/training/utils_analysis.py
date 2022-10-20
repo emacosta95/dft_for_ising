@@ -290,3 +290,14 @@ def nuv_representability_check(
             plt.show()
 
     return g_acc, z_acc
+
+
+def mean_field_functional_1nn(z: np.ndarray, hs: np.ndarray):
+    """The mean field functional in the 1nn Ising model
+
+    Args:
+        z (np.ndarray): transverse magnetization
+        hs (np.ndarray): the external field
+    """
+
+    return -1 * np.sum(1 - z ** 2, axis=-1) + np.einsum("ai,ai->a", hs, z)

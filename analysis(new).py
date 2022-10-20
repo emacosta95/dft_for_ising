@@ -336,7 +336,8 @@ nbatch=10
 minibatch=int(batch/nbatch)
 l=64
 h_max=3.6
-device='cuda'
+device='cpu'
+torch.set_num_threads(3)
 data=np.load(f'data/correlation_1nn_rebuilt/test_1nn_correlation_map_h_{h_max}_1000_l_{l}_pbc_j_1.0.npz')
 z=data['density'][:batch]
 xx=data['correlation'][:batch]
