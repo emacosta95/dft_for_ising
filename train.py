@@ -9,14 +9,24 @@ from pyexpat import model
 from torch.nn.modules import pooling
 from tqdm import tqdm, trange
 
-from src.training.models import (REDENT, Den2Cor, Den2CorCNN, Den2CorLSTM,
-                                 Den2CorLSTM_beta, Den2CorLSTM_gamma,
-                                 Den2CorRECURRENT, Den2CorRESNET)
+from src.training.models import (
+    REDENT,
+    Den2Cor,
+    Den2CorCNN,
+    Den2CorLSTM,
+    Den2CorLSTM_beta,
+    Den2CorLSTM_gamma,
+    Den2CorRECURRENT,
+    Den2CorRESNET,
+)
 from src.training.train_module import fit
-from src.training.utils import (count_parameters, from_txt_to_bool,
-                                get_optimizer,
-                                make_data_loader_correlation_scale,
-                                make_data_loader_unet)
+from src.training.utils import (
+    count_parameters,
+    from_txt_to_bool,
+    get_optimizer,
+    make_data_loader_correlation_scale,
+    make_data_loader_unet,
+)
 
 # %%
 
@@ -45,9 +55,12 @@ parser.add_argument(
     "--data_path",
     type=str,
     # nargs="+",
-    help="list of data path (default=data/unet_dataset/train_unet_periodic_16_l_3.0_h_150000_n.npz)",
-    default=["data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_3.6_150000_l_8_pbc_j_1.0.npz",
-             "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_3.6_150000_l_12_pbc_j_1.0.npz", "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_3.6_150000_l_16_pbc_j_1.0.npz"]
+    help="list of data path (default=data/unet_dataset/train_unet_periodic_16_l_3.6_h_150000_n.npz)",
+    default=[
+        "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_1.8_150000_l_8_pbc_j_1.0.npz",
+        "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_1.8_150000_l_12_pbc_j_1.0.npz",
+        "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_1.8_150000_l_16_pbc_j_1.0.npz",
+    ],
 )
 
 parser.add_argument(
