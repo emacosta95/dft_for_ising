@@ -2,8 +2,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-l = 16
-h_max = 1.0
+l = 128
+h_max = 4.5
 ndata = 1000
 data = np.load(
     f"data/correlation_1nn/test_1nn_correlation_map_h_{h_max}_n_{ndata}_l_{l}_pbc_j_1.0.npz"

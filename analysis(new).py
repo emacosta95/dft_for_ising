@@ -37,7 +37,7 @@ for l in ls:
         z=data['density'][:batch]
         xx=data['correlation'][:batch]
         
-        if i!=0 and i!=1:
+        if i!=0 :
             z_torch=torch.tensor(z,dtype=torch.double,device=device)
             print(z.shape)
             #model=torch.load(f'model_rep/1nn_den2cor/h_{h_max}_150k_unet_periodic_den2corRESNET_[40, 40, 40, 40]_hc_5_ks_1_ps_4_nconv_0_nblock',map_location='cpu')
@@ -56,7 +56,7 @@ for l in ls:
 
         op.append(np.average(xx))
         
-        if i==0 or i==1:
+        if i==0 :
             op_ml.append(np.average(xx))
         else:
             op_ml.append(np.average(xx_ml))
@@ -68,6 +68,8 @@ for l in ls:
 
     #plt.plot(h_max,op,label=f'exact l={l}')
     plt.plot(h_max,op_ml,label=f'l={l}')
+    if l==128:
+        plt.plot(h_max,op,label='exact l=128',linestyle='--',linewidth=2,color='black',marker='o')
 plt.legend(fontsize=20)
 plt.show()
 

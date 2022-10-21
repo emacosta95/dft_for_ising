@@ -57,9 +57,9 @@ parser.add_argument(
     # nargs="+",
     help="list of data path (default=data/unet_dataset/train_unet_periodic_16_l_3.6_h_150000_n.npz)",
     default=[
-        "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_1.8_150000_l_8_pbc_j_1.0.npz",
-        "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_1.8_150000_l_12_pbc_j_1.0.npz",
-        "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_1.8_150000_l_16_pbc_j_1.0.npz",
+        "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_4.5_150000_l_8_pbc_j_1.0.npz",
+        "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_4.5_150000_l_12_pbc_j_1.0.npz",
+        "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_4.5_150000_l_16_pbc_j_1.0.npz",
     ],
 )
 
