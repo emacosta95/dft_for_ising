@@ -18,6 +18,7 @@ from src.training.models import (
     Den2CorLSTM_gamma,
     Den2CorRECURRENT,
     Den2CorRESNET,
+    REDENTnopooling,
 )
 from src.training.train_module import fit
 from src.training.utils import (
@@ -276,6 +277,22 @@ def main(args):
             )
         elif args.model_type == "Den2Cor":
             model = Den2Cor(
+                Loss=nn.MSELoss(),
+                in_channels=input_channels,
+                Activation=nn.GELU(),
+                hidden_channels=hc,
+                ks=kernel_size,
+                padding=padding,
+                padding_mode=padding_mode,
+                # pooling_size=pooling_size,
+                n_conv_layers=n_conv_layers,
+                out_features=input_size,
+                in_features=input_size,
+                out_channels=input_channels,
+                n_block_layers=args.n_block_layers,
+            )
+        elif args.model_type == "REDENTnopooling":
+            model = REDENTnopooling(
                 Loss=nn.MSELoss(),
                 in_channels=input_channels,
                 Activation=nn.GELU(),

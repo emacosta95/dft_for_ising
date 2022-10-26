@@ -48,7 +48,7 @@ def make_data_loader_unet(
 
     data = np.load(file_name)
 
-    if model_type == "REDENT":
+    if model_type == "REDENT" or model_type == "REDENTnopooling":
         n = data["density"]
         # insert the pathological value to avoid
         # n_pathological=-1*np.ones((1,n.shape[-1]))
