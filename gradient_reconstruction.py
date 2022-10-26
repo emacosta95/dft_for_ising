@@ -278,7 +278,7 @@ for i in range(len(h_max)):
     elif i == 2:
         print("bigger")
         models[h_max[i]] = torch.load(
-            f"model_rep/2nn_ising/h_{h_max[i]:.2f}_15k_unet_periodic_augmentation_[80, 160]_hc_5_ks_2_ps_2_nconv_0_nblock",
+            f"model_rep/2nn_ising/h_{h_max[i]:.2f}_15k_unet_periodic_augmentation_[40, 40]_hc_5_ks_1_ps_2_nconv_0_nblock",
             map_location="cpu",
         )
 
