@@ -567,10 +567,8 @@ class REDENTnopooling(nn.Module):
                     # block.add_module(f"pooling {i+1}", nn.AvgPool1d(kernel_size=2))
                     self.conv_downsample.append(block)
 
-            # We should add a final block of dense layers
-
             for i in range(self.n_conv_layers):
-                if i == 0:
+                if i == 0 and self.n_conv_layers != 1:
                     block = nn.Sequential()
                     block.add_module(
                         f"trans_conv{i+1}",
@@ -578,7 +576,7 @@ class REDENTnopooling(nn.Module):
                             stride=1,
                             in_channels=hidden_channels[n_conv_layers - 1 - i],
                             out_channels=hidden_channels[n_conv_layers - 1 - (i + 1)],
-                            kernel_size=ks ,
+                            kernel_size=ks,
                             padding=padding,
                             padding_mode="circular",
                         ),
@@ -623,7 +621,7 @@ class REDENTnopooling(nn.Module):
                             stride=1,
                             in_channels=hidden_channels[n_conv_layers - 1 - (i)],
                             out_channels=hidden_channels[n_conv_layers - 1 - (i + 1)],
-                            kernel_size=ks ,
+                            kernel_size=ks,
                             padding=padding,
                             padding_mode="circular",
                         ),
@@ -693,7 +691,7 @@ class REDENTnopooling(nn.Module):
                             stride=1,
                             in_channels=hidden_channels[n_conv_layers - 1 - (i)],
                             out_channels=self.out_channels,
-                            kernel_size=ks ,
+                            kernel_size=ks,
                             padding=padding,
                             padding_mode="zeros",
                         ),
