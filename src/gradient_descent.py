@@ -13,9 +13,6 @@ import random
 device = pt.device("cuda" if pt.cuda.is_available() else "cpu")
 
 
-
-
-
 def exact_energy_functional(dens: np.array, pot: np.array):
     """This function compute the analytical energy functional given by the 1prt kinetic energy functional + the external potential functional
 
@@ -57,7 +54,7 @@ class GradientDescent:
         n_ensambles: int,
         target_path: str,
         model_name: str,
-        run_name:str,
+        run_name: str,
         epochs: int,
         variable_lr: bool,
         final_lr: float,
@@ -67,7 +64,7 @@ class GradientDescent:
         seed: int,
         num_threads: int,
         device: str,
-        n_init:np.array,
+        n_init: np.array,
     ):
 
         self.device = device
@@ -91,7 +88,7 @@ class GradientDescent:
         self.cut = cut
 
         self.epochs = epochs
-        self.logdiffsoglia=logdiffsoglia
+        self.logdiffsoglia = logdiffsoglia
         self.diffsoglia = 10 ** logdiffsoglia
         self.n_ensambles = n_ensambles
 
@@ -99,10 +96,10 @@ class GradientDescent:
         self.v_target = np.load(target_path)["potential"]
         self.e_target = np.load(target_path)["energy"]
 
-        self.n_init=n_init
+        self.n_init = n_init
 
         self.model_name = model_name
-        self.run_name=run_name
+        self.run_name = run_name
 
         if self.variable_lr:
             self.ratio = pt.exp(
@@ -147,7 +144,6 @@ class GradientDescent:
         model = model.to(device=self.device)
         model.eval()
 
-
         # starting the cycle for each instance
         print("starting the cycle...")
         for idx in trange(0, self.n_instances):
@@ -160,8 +156,6 @@ class GradientDescent:
             # for a single target sample
             self._single_gradient_descent(phi=phi, idx=idx, model=model)
 
-    
-
     def initialize_phi(self) -> pt.tensor:
         """This routine initialize the phis using the average decomposition of the dataset (up to now, the best initialization ever found)
 
@@ -172,25 +166,27 @@ class GradientDescent:
         # sqrt of the initial configuration
         if self.n_ensambles != 1:
             # initialize with the random angles
-            if self.logdiffsoglia==-10:
-                print('train init!')
-                idxs=pt.randint(0,10000,(self.n_ensambles,))
-                m_init=[self.n_init[idx] for idx in idxs]
-                m_init=pt.tensor(m_init,dtype=pt.double)
+            if self.logdiffsoglia == -10:
+                print("train init!")
+                idxs = pt.randint(0, 10000, (self.n_ensambles,))
+                m_init = [self.n_init[idx] for idx in idxs]
+                m_init = pt.tensor(m_init, dtype=pt.double)
                 phi = pt.acos(m_init)
             else:
-                m_init=1-2*pt.rand((self.n_ensambles,self.n_target.shape[-1]))
+                m_init = 1 - 2 * pt.rand((self.n_ensambles, self.n_target.shape[-1]))
                 phi = pt.acos(m_init)
         elif self.n_ensambles == 1:
             # initialize with the flat density profile
-            if self.logdiffsoglia==-10:
-                print('train init!')
-                idxs=pt.randint(0,10000,(self.n_ensambles,))
-                m_init=[self.n_init[idx] for idx in idxs]
-                m_init=pt.tensor(m_init,dtype=pt.double)
+            if self.logdiffsoglia == -10:
+                print("train init!")
+                idxs = pt.randint(0, 10000, (self.n_ensambles,))
+                m_init = [self.n_init[idx] for idx in idxs]
+                m_init = pt.tensor(m_init, dtype=pt.double)
                 phi = pt.acos(m_init)
             else:
-                m_init=pt.mean(pt.tensor(self.n_init,dtype=pt.double),dim=0).view(1,self.n_init.shape[-1])
+                m_init = pt.mean(pt.tensor(self.n_init, dtype=pt.double), dim=0).view(
+                    1, self.n_init.shape[-1]
+                )
                 phi = pt.acos(m_init)
         # initialize in double and device
         phi = phi.to(dtype=pt.double)
@@ -240,7 +236,7 @@ class GradientDescent:
             self.lr = pt.tensor(10 ** self.loglr, device=self.device)
 
         # start the gradient descent
-        t_iterator=tqdm(range(self.epochs))
+        t_iterator = tqdm(range(self.epochs))
         for epoch in t_iterator:
 
             eng, phi, grad = self.gradient_descent_step(energy=energy, phi=phi)
@@ -264,8 +260,10 @@ class GradientDescent:
                 self.checkpoints(
                     eng=eng, phi=phi, idx=idx, history=history, epoch=epoch, grad=grad
                 )
-            if self.n_ensambles==1:
-                t_iterator.set_description(f'eng={eng[0].detach().cpu().numpy()-self.e_target[idx]:.4f} idx={idx}')
+            if self.n_ensambles == 1:
+                t_iterator.set_description(
+                    f"eng={(eng[0].detach().cpu().numpy()-self.e_target[idx])/self.e_target[idx]:.6f} idx={idx}"
+                )
             t_iterator.refresh()
 
     def gradient_descent_step(self, energy: nn.Module, phi: pt.tensor) -> tuple:
@@ -288,9 +286,9 @@ class GradientDescent:
 
         with pt.no_grad():
 
-            grad = phi.grad 
+            grad = phi.grad
 
-            phi -= self.lr * grad 
+            phi -= self.lr * grad
             phi.grad.zero_()
 
         return eng.clone().detach(), phi, grad.detach().cpu().numpy()
@@ -362,19 +360,18 @@ class GradientDescent:
         # self.min_exct_hist.append(exact_history_min)
 
         if idx == 0:
-            self.min_ns[epoch] = np.cos(phi_min.cpu().detach().numpy()) 
+            self.min_ns[epoch] = np.cos(phi_min.cpu().detach().numpy())
             self.grads[epoch] = grad_min
         else:
             self.min_ns[epoch] = np.vstack(
-                (self.min_ns[epoch], np.cos(phi_min.cpu().detach().numpy()) )
+                (self.min_ns[epoch], np.cos(phi_min.cpu().detach().numpy()))
             )
             self.grads[epoch] = np.vstack((self.grads[epoch], grad_min))
 
         # save the numpy values
         if idx != 0:
             np.savez(
-                "data/gd_data/eng_"
-                + session_name,
+                "data/gd_data/eng_" + session_name,
                 min_energy=self.min_engs[epoch],
                 gs_energy=self.e_target[0 : (self.min_engs[epoch].shape[0])],
             )

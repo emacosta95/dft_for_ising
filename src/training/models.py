@@ -2886,7 +2886,7 @@ class Den2CorLSTM_beta(nn.Module):
 
         super().__init__()
 
-        self.conv_f = REDENT(
+        self.conv_f = REDENTnopooling(
             n_conv_layers=n_conv_layers,
             in_features=in_features,
             in_channels=in_channels,
@@ -2900,7 +2900,7 @@ class Den2CorLSTM_beta(nn.Module):
             n_block_layers=n_block_layers,
             Loss=Loss,
         )
-        self.conv_f_x = REDENT(
+        self.conv_f_x = REDENTnopooling(
             n_conv_layers=n_conv_layers,
             in_features=in_features,
             in_channels=in_channels,
@@ -2914,22 +2914,7 @@ class Den2CorLSTM_beta(nn.Module):
             n_block_layers=n_block_layers,
             Loss=Loss,
         )
-        self.conv_i = REDENT(
-            n_conv_layers=n_conv_layers,
-            in_features=in_features,
-            in_channels=in_channels,
-            hidden_channels=hidden_channels,
-            out_features=out_channels,
-            out_channels=out_channels,
-            ks=ks,
-            padding=padding,
-            padding_mode=padding_mode,
-            Activation=Activation,
-            n_block_layers=n_block_layers,
-            Loss=Loss,
-        )
-
-        self.conv_i_x = REDENT(
+        self.conv_i = REDENTnopooling(
             n_conv_layers=n_conv_layers,
             in_features=in_features,
             in_channels=in_channels,
@@ -2944,7 +2929,7 @@ class Den2CorLSTM_beta(nn.Module):
             Loss=Loss,
         )
 
-        self.conv_o = REDENT(
+        self.conv_i_x = REDENTnopooling(
             n_conv_layers=n_conv_layers,
             in_features=in_features,
             in_channels=in_channels,
@@ -2959,7 +2944,7 @@ class Den2CorLSTM_beta(nn.Module):
             Loss=Loss,
         )
 
-        self.conv_o_x = REDENT(
+        self.conv_o = REDENTnopooling(
             n_conv_layers=n_conv_layers,
             in_features=in_features,
             in_channels=in_channels,
@@ -2974,7 +2959,7 @@ class Den2CorLSTM_beta(nn.Module):
             Loss=Loss,
         )
 
-        self.conv_c = REDENT(
+        self.conv_o_x = REDENTnopooling(
             n_conv_layers=n_conv_layers,
             in_features=in_features,
             in_channels=in_channels,
@@ -2989,7 +2974,7 @@ class Den2CorLSTM_beta(nn.Module):
             Loss=Loss,
         )
 
-        self.conv_c_x = REDENT(
+        self.conv_c = REDENTnopooling(
             n_conv_layers=n_conv_layers,
             in_features=in_features,
             in_channels=in_channels,
@@ -3004,7 +2989,22 @@ class Den2CorLSTM_beta(nn.Module):
             Loss=Loss,
         )
 
-        self.conv_w = REDENT(
+        self.conv_c_x = REDENTnopooling(
+            n_conv_layers=n_conv_layers,
+            in_features=in_features,
+            in_channels=in_channels,
+            hidden_channels=hidden_channels,
+            out_features=out_channels,
+            out_channels=out_channels,
+            ks=ks,
+            padding=padding,
+            padding_mode=padding_mode,
+            Activation=Activation,
+            n_block_layers=n_block_layers,
+            Loss=Loss,
+        )
+
+        self.conv_w = REDENTnopooling(
             n_conv_layers=n_conv_layers,
             in_features=in_features,
             in_channels=in_channels,
