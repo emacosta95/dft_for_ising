@@ -3043,10 +3043,10 @@ class Den2CorLSTM_beta(nn.Module):
             1
         )  # structure of a LSTM without input sequence on wikipedia
         for i in range(int(x.shape[-1] / 2) - 2):
-            f = torch.sigmoid(self.conv_f(y) + self.conv_f_x(x))
-            i = torch.sigmoid(self.conv_i(y) + self.conv_i_x(x))
-            o = torch.sigmoid(self.conv_o(y) + self.conv_o_x(x))
-            c_bar = torch.tanh(self.conv_c(y) + self.conv_c_x(x))
+            f = torch.sigmoid(self.conv_f(y))  # + self.conv_f_x(x))
+            i = torch.sigmoid(self.conv_i(y))  # + self.conv_i_x(x))
+            o = torch.sigmoid(self.conv_o(y))  # + self.conv_o_x(x))
+            c_bar = torch.tanh(self.conv_c(y))  # + self.conv_c_x(x))
             c = f * c + i * c_bar
             y = o * torch.sigmoid(c)
             corr = torch.cat((corr, y.clone().unsqueeze(1)), dim=1)
