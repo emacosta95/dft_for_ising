@@ -95,11 +95,11 @@ def test_models_unet(models_name: List, data_path: List):
 
         data = np.load(data_path[i])
         n_std = data["density"]
-        F_std = data["F"]
+        f_std = data["F"]
         e_std = data["energy"]
         v_std = data["potential"]
         ds = TensorDataset(
-            pt.tensor(n_std), pt.tensor(F_std), pt.tensor(v_std), pt.tensor(e_std)
+            pt.tensor(n_std), pt.tensor(f_std), pt.tensor(v_std), pt.tensor(e_std)
         )
         dl = DataLoader(ds, batch_size=100)
 
@@ -122,8 +122,20 @@ def test_models_unet(models_name: List, data_path: List):
             r2.update(output.mean(dim=-1), f)
             # print(f[0],pt.mean(output,dim=-1)[0])
             eng = energy.batch_calculation(n.squeeze())
-            de = np.average(np.abs(eng.detach().numpy() - e_std) / np.abs(e_std))
-            devde = np.std(np.abs(eng.detach().numpy() - e_std) / np.abs(e_std))
+            de = np.average(
+                np.abs(
+                    output.mean(dim=-1).detach().numpy().reshape(-1)
+                    - f.detach().numpy()
+                )
+                / np.abs(f.detach().numpy())
+            )
+            devde = np.std(
+                np.abs(
+                    output.mean(dim=-1).detach().numpy().reshape(-1)
+                    - f.detach().numpy()
+                )
+                / np.abs(f.detach().numpy())
+            )
             dde.append(de)
             ddevde.append(devde)
         print(model)
