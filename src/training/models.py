@@ -716,6 +716,22 @@ class REDENTnopooling(nn.Module):
         # x = torch.sigmoid(x)  # we want to prove the Cross Entropy
         return x
 
+    def functional(self, x: torch.tensor):
+        x = torch.unsqueeze(x, dim=1)
+        outputs = []
+        for block in self.conv_downsample:
+            x = block(x)
+            outputs.append(x)
+        for i, block in enumerate(self.conv_upsample):
+            if i == 0:
+                x = block(x)
+            else:
+                x = x + outputs[self.n_conv_layers - 1 - i]
+                x = block(x)
+        x = torch.squeeze(x)
+        # x = torch.sigmoid(x)  # we want to prove the Cross Entropy
+        return x.mean(-1)
+
     def train_step(self, batch: Tuple, device: str):
         x, y = batch
         x = x.to(device=device, dtype=torch.double)

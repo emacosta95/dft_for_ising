@@ -129,7 +129,7 @@ def test_models_unet(models_name: List, data_path: List):
                 )
                 / np.abs(f.detach().numpy())
             )
-            devde = np.std(
+            devde = (1 / np.sqrt(f.shape[0])) * np.std(
                 np.abs(
                     output.mean(dim=-1).detach().numpy().reshape(-1)
                     - f.detach().numpy()
