@@ -130,6 +130,46 @@ def make_data_loader_correlation_scale(
     return train_dl, valid_dl
 
 
+def make_data_loader_unet_scale(
+    file_names: list,
+    split: float,
+    bs: int,
+) -> tuple:
+    """
+    This function create a data loader from a .npz file
+
+    Arguments
+
+    file_name: name of the npz data_file (numpy format)
+    pbc: if True the input data is extended in a periodic fashion with 128 components both on the top and bottom (128+256+128)
+    split: the ratio valid_data/train_data
+    bs: batch size of the data loader
+    img: if True reshape the x data into a one dimensional image        (N_dataset,1,dimension)
+    """
+    ns_train = []
+    f_dens_train = []
+    ns_valid = []
+    f_dens_valid = []
+    for file_name in file_names:
+        data = np.load(file_name)
+        n = data["density"]
+        f_dens = data["density_F"]
+        N_train = int(n.shape[0] * split)
+        print(N_train)
+        ns_train.append(n[0:N_train])
+        f_dens_train.append(f_dens[0:N_train])
+        ns_valid.append(n[N_train:])
+        f_dens_valid.append(f_dens[N_train:])
+
+    print(f"bs={bs}")
+    train_ds = ScalableCorrelationDataset(ns_train, f_dens_train)
+    train_dl = DataLoader(train_ds, bs, shuffle=True)
+    valid_ds = ScalableCorrelationDataset(ns_valid, f_dens_valid)
+    valid_dl = DataLoader(valid_ds, 2 * bs, shuffle=True)
+
+    return train_dl, valid_dl
+
+
 def data_loader_response(file_name: str, split: float, bs: int) -> tuple:
 
     data = np.load(file_name)

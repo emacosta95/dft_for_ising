@@ -12,20 +12,17 @@ from tqdm import tqdm, trange
 from src.training.models import (
     REDENT,
     Den2Cor,
-    Den2CorCNN,
-    Den2CorLSTM,
     Den2CorLSTM_beta,
-    Den2CorLSTM_gamma,
-    Den2CorRECURRENT,
     Den2CorRESNET,
     REDENTnopooling,
 )
+from src.training.dft_models import REDENTScalableTraining
 from src.training.train_module import fit
 from src.training.utils import (
     count_parameters,
     from_txt_to_bool,
     get_optimizer,
-    make_data_loader_correlation_scale,
+    make_data_loader_unet_scale,
     make_data_loader_unet,
 )
 
@@ -58,9 +55,9 @@ parser.add_argument(
     # nargs="+",
     help="list of data path (default=data/unet_dataset/train_unet_periodic_16_l_3.6_h_150000_n.npz)",
     default=[
-        "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_2.7_150000_l_8_pbc_j_1.0.npz",
-        "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_2.7_150000_l_12_pbc_j_1.0.npz",
-        "data/correlation_1nn_rebuilt/train_1nn_correlation_map_h_2.7_150000_l_16_pbc_j_1.0.npz",
+        "data/dataset_2nn/train_unet_periodic_2nn_augmentation_16_l_5.44_h_30000_n.npz",
+        "data/dataset_2nn/train_unet_periodic_2nn_augmentation_12_l_5.44_h_30000_n.npz",
+        "data/dataset_2nn/train_unet_periodic_2nn_augmentation_8_l_5.44_h_30000_n.npz",
     ],
 )
 
@@ -191,7 +188,7 @@ parser.add_argument(
     "--model_type",
     type=str,
     help="could be either REDENT or Den2Cor",
-    default="REDENT",
+    default="REDENTnopooling",
 )
 
 
@@ -308,6 +305,23 @@ def main(args):
                 n_block_layers=args.n_block_layers,
             )
 
+        elif args.model_type == "REDENTScalableTraining":
+            model = REDENTScalableTraining(
+                Loss=nn.MSELoss(),
+                in_channels=input_channels,
+                Activation=nn.GELU(),
+                hidden_channels=hc,
+                ks=kernel_size,
+                padding=padding,
+                padding_mode=padding_mode,
+                # pooling_size=pooling_size,
+                n_conv_layers=n_conv_layers,
+                out_features=input_size,
+                in_features=input_size,
+                out_channels=input_channels,
+                n_block_layers=args.n_block_layers,
+            )
+
         elif args.model_type == "Den2CorRESNET":
             model = Den2CorRESNET(
                 Loss=nn.MSELoss(),
@@ -368,7 +382,7 @@ def main(args):
 
     if args.scalable_training:
 
-        train_dl, valid_dl = make_data_loader_correlation_scale(
+        train_dl, valid_dl = make_data_loader_unet_scale(
             file_names=args.data_path, bs=bs, split=0.8
         )
 
