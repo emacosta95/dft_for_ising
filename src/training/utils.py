@@ -31,9 +31,7 @@ def count_parameters(model: pt.nn.Module) -> int:
 # %%
 
 
-def make_data_loader_unet(
-    file_name: str, pbc: bool, split: float, bs: int, model_type: str, img: bool = False
-) -> tuple:
+def make_data_loader_unet(file_name: str, split: float, bs: int, keys: Tuple) -> tuple:
     """
     This function create a data loader from a .npz file
 
@@ -47,39 +45,9 @@ def make_data_loader_unet(
     """
 
     data = np.load(file_name)
-
-    if model_type == "REDENT" or model_type == "REDENTnopooling":
-        n = data["density"]
-        # insert the pathological value to avoid
-        # n_pathological=-1*np.ones((1,n.shape[-1]))
-        # n=np.append(n_pathological,n,axis=0)
-        Func = data["density_F"]
-        # f_pathological=np.zeros((1))
-        # Func=np.append(f_pathological,Func,axis=0)
-
-    if (
-        model_type == "Den2Cor"
-        or model_type == "Den2CorRESNET"
-        or model_type == "Den2CorRECURRENT"
-        or model_type == "Den2CorLSTM"
-    ):
-        n = data["density"]
-        # insert the pathological value to avoid
-        # n_pathological=-1*np.ones((1,n.shape[-1]))
-        # n=np.append(n_pathological,n,axis=0)
-        Func = data["correlation"]
-        # f_pathological=np.zeros((1))
-        # Func=np.append(f_pathological,Func,axis=0)
-
-    if model_type == "Den2Magn":
-
-        n = data["density"]
-        # insert the pathological value to avoid
-        # n_pathological=-1*np.ones((1,n.shape[-1]))
-        # n=np.append(n_pathological,n,axis=0)
-        Func = data["magnetization_x"]
-        # f_pathological=np.zeros((1))
-        # Func=np.append(f_pathological,Func,axis=0)
+    # in this way we generalize this vector-vector function
+    n = data[keys[0]]
+    Func = data[keys[1]]
 
     N_train = int(n.shape[0] * split)
     train_ds = TensorDataset(pt.tensor(n[0:N_train]), pt.tensor(Func[0:N_train]))

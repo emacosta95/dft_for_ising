@@ -191,6 +191,14 @@ parser.add_argument(
     default="REDENTnopooling",
 )
 
+parser.add_argument(
+    "--keys",
+    type=str,
+    nargs="+",
+    help="the keys of the dataset to correlate",
+    default=["density", "density_F"],
+)
+
 
 def main(args):
 
@@ -388,11 +396,7 @@ def main(args):
 
     else:
         train_dl, valid_dl = make_data_loader_unet(
-            file_name=args.data_path,
-            bs=bs,
-            split=0.8,
-            pbc=False,
-            model_type=args.model_type,
+            file_name=args.data_path, bs=bs, split=0.8, keys=args.keys
         )
 
     opt = get_optimizer(lr=lr, model=model)
