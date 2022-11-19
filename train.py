@@ -16,7 +16,7 @@ from src.training.models import (
     Den2CorRESNET,
     REDENTnopooling,
 )
-from src.training.dft_models import REDENTScalableTraining, REDENTnobias
+from src.training.dft_models import REDENTScalableTraining, REDENTnobias, Den2Func
 from src.training.train_module import fit
 from src.training.utils import (
     count_parameters,
@@ -347,8 +347,8 @@ def main(args):
                 n_block_layers=args.n_block_layers,
             )
 
-        elif args.model_type == "Den2CorRESNET":
-            model = Den2CorRESNET(
+        elif args.model_type == "Den2Func":
+            model = Den2Func(
                 Loss=nn.MSELoss(),
                 in_channels=input_channels,
                 Activation=nn.GELU(),
@@ -356,7 +356,6 @@ def main(args):
                 ks=kernel_size,
                 padding=padding,
                 padding_mode=padding_mode,
-                pooling_size=pooling_size,
                 n_conv_layers=n_conv_layers,
                 out_features=input_size,
                 in_features=input_size,
