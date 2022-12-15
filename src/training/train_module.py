@@ -13,7 +13,6 @@ from torch.utils.data import Dataset, TensorDataset, DataLoader
 import matplotlib.pyplot as plt
 
 
-
 def decreasing(val_losses, best_loss, min_delta=0.001):
     """for early stopping"""
     try:
@@ -27,8 +26,8 @@ def fit(
     epochs: int,
     model: torch.nn.Module,
     opt: torch.optim.Optimizer,
-    train_dl: torch.utils.data.DataLoader,
-    valid_dl: torch.utils.data.DataLoader,
+    train_dls: List[torch.utils.data.DataLoader],
+    valid_dls: List[torch.utils.data.DataLoader],
     loss_func: nn.Module,
     supervised: bool,
     checkpoint: bool,
@@ -37,7 +36,7 @@ def fit(
     history_valid: List,
     patiance: int,
     early_stopping: float,
-    device:str,
+    device: str,
 ) -> Tuple:
     """This function fits the model using the selected optimizer.
         It will return a list with the loss values and the accuracy as a tuple (loss,accuracy).
@@ -74,50 +73,55 @@ def fit(
         kldiv_train = 0
         kldiv_valid = 0
 
-        tqdm_iterator = tqdm(
-            enumerate(train_dl),
-            total=len(train_dl),
-            desc=f"batch [loss_ave: None]",
-            leave=False,
-        )
+        for i in range(len(train_dls)):
+            train_dl = train_dls[i]
+            valid_dl = valid_dls[i]
+            tqdm_iterator = tqdm(
+                enumerate(train_dl),
+                total=len(train_dl),
+                desc=f"batch [loss_ave: None]",
+                leave=False,
+            )
 
-        for batch_idx, batch in tqdm_iterator:
+            for batch_idx, batch in tqdm_iterator:
 
-            batch = batch
-            if not (supervised):
-                loss, _ = model.train_generative_step(batch, device)
-            else:
-                loss = model.train_step(batch, device)
-            loss.backward()
+                batch = batch
+                if not (supervised):
+                    loss, _ = model.train_generative_step(batch, device)
+                else:
+                    loss = model.train_step(batch, device)
+                loss.backward()
 
-            opt.step()
-            opt.zero_grad()
+                opt.step()
+                opt.zero_grad()
 
-            tqdm_iterator.set_description(f"train batch [avg loss: {loss.item():.3f}]")
-            tqdm_iterator.refresh()
+                tqdm_iterator.set_description(
+                    f"train batch subset-{i} [avg loss: {loss.item():.3f}]"
+                )
+                tqdm_iterator.refresh()
 
-        model.eval()
-        if supervised:
-            r2 = R2Score()
-
-        for batch in valid_dl:
+            model.eval()
             if supervised:
-                r2 = model.r2_computation(batch, device, r2)
-            else:
-                loss, kldiv = model.train_generative_step(batch, device)
-                loss_ave_valid += loss.item()
-                kldiv_valid += kldiv
-        if supervised:
-            r_ave_train = r2.compute()
-            r2.reset()
+                r2 = R2Score()
 
-        for batch in train_dl:
+            for batch in valid_dl:
+                if supervised:
+                    r2 = model.r2_computation(batch, device, r2)
+                else:
+                    loss, kldiv = model.train_generative_step(batch, device)
+                    loss_ave_valid += loss.item()
+                    kldiv_valid += kldiv
             if supervised:
-                r2 = model.r2_computation(batch, device, r2)
-            else:
-                loss, kldiv = model.train_generative_step(batch, device)
-                loss_ave_train += loss.item()
-                kldiv_train += kldiv
+                r_ave_train = r2.compute()
+                r2.reset()
+
+            for batch in train_dl:
+                if supervised:
+                    r2 = model.r2_computation(batch, device, r2)
+                else:
+                    loss, kldiv = model.train_generative_step(batch, device)
+                    loss_ave_train += loss.item()
+                    kldiv_train += kldiv
         if supervised:
             r_ave_valid = r2.compute()
             r2.reset()

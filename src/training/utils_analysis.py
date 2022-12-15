@@ -313,3 +313,99 @@ def mean_field_functional_1nn(z: np.ndarray, hs: np.ndarray):
     """
 
     return -1 * np.sum(1 - z ** 2, axis=-1) + np.einsum("ai,ai->a", hs, z)
+
+
+def gradient_prediction_analysis(
+    models_name: List, data_path: List, ls: List, ndata: int
+) -> List[List]:
+
+    g_accs = []
+    dev_g = []
+    for j in range(len(models_name)):
+        g_acc = []
+        for i in range(len(ls)):
+            data = np.load(data_path[i])
+            m = data["density"]
+            v = data["potential"]
+            model = pt.load(
+                "model_rep/" + models_name[j],
+                map_location="cpu",
+            )
+            x = m[:ndata]
+            x = pt.tensor(x, dtype=pt.double)
+            x.requires_grad_(True)
+            f = pt.mean(model(x), dim=-1)
+            # print(f.shape)
+            f.backward(pt.ones_like(f))
+            with pt.no_grad():
+                grad = x.grad
+                grad = -ls[i] * grad.detach().numpy()
+                pseudo_pot = grad
+            # print(grad.shape)
+            g_acc.append(
+                np.sqrt(np.average((grad - v[:ndata]) ** 2, axis=-1))
+                / np.sqrt(np.average((v[:ndata]) ** 2, axis=-1))
+            )
+
+        dev_g.append([np.std(g) / np.sqrt(g.shape[0]) for g in g_acc])
+        g_acc = [np.average(g) for g in g_acc]
+        g_accs.append(g_acc)
+
+    return (g_accs, dev_g)
+
+
+# functions
+def correlation_through_the_machine(
+    z: pt.tensor,
+    model: nn.Module,
+):
+    x = pt.unsqueeze(z, dim=1)
+    outputs = []
+    for i, block in enumerate(model.conv_downsample):
+        x = block(x)
+        outputs.append(x)
+        if i == 0:
+            outputs_in = x.unsqueeze(0).detach().numpy()
+        else:
+            outputs_in = np.append(x.unsqueeze(0).detach().numpy(), outputs_in, axis=0)
+
+    for i, block in enumerate(model.conv_upsample):
+        if i == 0:
+            x = block(x)
+            outputs_out = x.unsqueeze(0).detach().numpy()
+        else:
+            x = x + outputs[model.n_conv_layers - 1 - i]
+            x = block(x)
+            if i <= len(model.conv_upsample) - 2:
+                outputs_out = np.append(
+                    x.unsqueeze(0).detach().numpy(), outputs_out, axis=0
+                )
+            if i == len(model.conv_upsample) - 1:
+                last_output = x.detach().numpy()
+    f_dens = pt.squeeze(x)
+    outputs = np.append(outputs_out, outputs_in, axis=0)
+    return outputs, f_dens
+
+
+def makes_the_fluctuations(outputs: np.ndarray, z: pt.tensor, channels: Tuple):
+    x_0 = np.append(
+        z.detach().numpy().reshape(1, z.shape[0], z.shape[1]),
+        outputs[:, :, channels[0], :],
+        axis=0,
+    )
+    x_1 = np.append(
+        z.detach().numpy().reshape(1, z.shape[0], z.shape[1]),
+        outputs[:, :, channels[1], :],
+        axis=0,
+    )
+    mean_x = np.average(x_0)
+    dx0 = x_0 - np.average(x_0, axis=1)[:, None, :]
+    mean_x = np.average(x_1)
+    dx1 = x_1 - np.average(x_1, axis=1)[:, None, :]
+    return (dx0, dx1)
+
+
+def covtt(dx0, dx1):
+    return np.average(dx0[:, None, :, None, :] * dx1[None, :, :, :, None], axis=2) / (
+        np.std(dx0, axis=1)[:, None, None, :] * np.std(dx1, axis=1)[None, :, :, None]
+    )

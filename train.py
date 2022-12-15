@@ -40,19 +40,14 @@ parser.add_argument(
     action=argparse.BooleanOptionalAction,
 )
 
-parser.add_argument(
-    "--scalable_training",
-    type=bool,
-    help="Create a set of scalable datasets",
-    action=argparse.BooleanOptionalAction,
-)
+
 
 parser.add_argument("--name", type=str, help="name of the model", default=None)
 
 parser.add_argument(
     "--data_path",
     type=str,
-    # nargs="+",
+    nargs="+",
     help="list of data path (default=data/unet_dataset/train_unet_periodic_16_l_3.6_h_150000_n.npz)",
     default=[
         "data/dataset_2nn/train_unet_periodic_2nn_augmentation_16_l_5.44_h_30000_n.npz",
@@ -116,7 +111,7 @@ parser.add_argument(
     "--epochs",
     type=int,
     help="training epochs (default=1200)",
-    default=1200,
+    default=3000,
 )
 
 
@@ -126,8 +121,8 @@ parser.add_argument(
 parser.add_argument(
     "--input_size",
     type=int,
-    help="number of features of the input (default=64)",
-    default=64,
+    help="number of features of the input (default=16)",
+    default=16,
 )
 
 
@@ -135,8 +130,8 @@ parser.add_argument(
     "--hidden_channels",
     type=int,
     nargs="+",
-    help="list of hidden channels (default=120)",
-    default=[30, 60, 120],
+    help="list of hidden channels (default=[40, 40, 40, 40])",
+    default=[40 for i in range(4)],
 )
 
 parser.add_argument(
@@ -150,23 +145,23 @@ parser.add_argument(
 parser.add_argument(
     "--pooling_size",
     type=int,
-    help="pooling size in the Avg Pooling (default=2)",
-    default=2,
+    help="pooling size in the Avg Pooling (default=1)",
+    default=1,
 )
 
 parser.add_argument(
     "--padding",
     type=int,
-    help="padding dimension (default=4)",
-    default=4,
+    help="padding dimension (default=2)",
+    default=2,
 )
 
 
 parser.add_argument(
     "--kernel_size",
     type=int,
-    help="kernel size (default=9)",
-    default=9,
+    help="kernel size (default=5)",
+    default=5,
 )
 
 parser.add_argument(
@@ -188,7 +183,7 @@ parser.add_argument(
     "--model_type",
     type=str,
     help="could be either REDENT or Den2Cor",
-    default="REDENTnopooling",
+    default="Den2Func",
 )
 
 parser.add_argument(
@@ -404,25 +399,24 @@ def main(args):
     print(count_parameters(model))
     print(args)
 
-    if args.scalable_training:
+    train_dls = []
+    valid_dls = []
 
-        train_dl, valid_dl = make_data_loader_unet_scale(
-            file_names=args.data_path, bs=bs, split=0.8
-        )
-
-    else:
+    for file_name in args.data_path:
         train_dl, valid_dl = make_data_loader_unet(
-            file_name=args.data_path, bs=bs, split=0.8, keys=args.keys
+            file_name=file_name, bs=bs, split=0.8, keys=args.keys
         )
+        train_dls.append(train_dl)
+        valid_dls.append(valid_dl)
 
     opt = get_optimizer(lr=lr, model=model)
     fit(
         supervised=True,
         model=model,
-        train_dl=train_dl,
+        train_dls=train_dls,
         opt=opt,
         epochs=epochs,
-        valid_dl=valid_dl,
+        valid_dls=valid_dls,
         checkpoint=True,
         name_checkpoint=model_name,
         history_train=history_train,
