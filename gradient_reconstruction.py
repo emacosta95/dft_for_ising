@@ -126,11 +126,11 @@ def parallel_nambu_diagonalization_ising_model(
 
 #%% #ANALYSIS IN THE STANDARD FORM
 ndata = 100
-h_max = [2.7] * 8
+h_max = [1.0, 1.8, 2.7, 3.6, 4.5]
 n_dataset = [15000] * len(h_max)
-ls = [16, 32, 64, 128, 256, 512, 1024, 2048]
+ls = [16] * len(h_max)
 
-activation = "_gelu"
+
 models_name = []
 data_path = []
 ms = {}
@@ -138,169 +138,10 @@ vs = {}
 models = {}
 for i in range(len(h_max)):
     path_name = f"data/dataset_1nn/valid_unet_periodic_{ls[i]}_l_{h_max[i]}_h_{n_dataset[i]}_n.npz"
-    ms[ls[i]] = np.load(path_name)["density"]
-    vs[ls[i]] = np.load(path_name)["potential"]
-    models[ls[i]] = torch.load(
-        f"model_rep/1nn_ising/h_2.7_150k_augmentation_unet_periodic_1nn_model_cnn_[20, 40]_hc_5_ks_2_ps_2_nconv_0_nblock",
-        map_location="cpu",
-    )
-
-
-# %% THe CASE WITH MIXED DATASET
-
-h_max = [
-    1.0,
-    2.7,
-    3.0,
-    4.5,
-]
-n_dataset = [15000] * len(h_max)
-l = 128
-ls = [l] * len(h_max)
-
-activation = "_gelu"
-models_name = []
-data_path = []
-ms = {}
-vs = {}
-models = {}
-for i in range(len(h_max)):
-    path_name = f"data/unet_dataset/valid_unet_periodic_{ls[i]}_l_{h_max[i]}_h_{n_dataset[i]}_n.npz"
     ms[h_max[i]] = np.load(path_name)["density"]
     vs[h_max[i]] = np.load(path_name)["potential"]
     models[h_max[i]] = torch.load(
-        f"model_rep/unet/h_interval_1-8_augmentation_unet_periodic_ising_cnn_gelu_[30, 60, 120]_hc_9_ks_2_ps_3_nconv_0_nblock",
-        map_location="cpu",
-    )
-
-
-#%% #ANALYSIS OF THE NONGRIFFITH PHASE WITH MIXED DATASET
-l = 64
-ndata = 1000
-h_max = [
-    4.5,
-]
-n_dataset = [15000] * len(h_max)
-ls = [l] * len(h_max)
-
-activation = "_gelu"
-models_name = []
-data_path = []
-ms = {}
-vs = {}
-models = {}
-for i in range(len(h_max)):
-    path_name = f"data/unet_dataset/valid_periodic_no_griffith_phase_{ls[i]}_l_{h_max[i]}_h_15000_n.npz"
-    ms[h_max[i]] = np.load(path_name)["density"]
-    vs[h_max[i]] = np.load(path_name)["potential"]
-    models[h_max[i]] = torch.load(
-        f"model_rep/unet/h_interval_1-8_augmentation_unet_periodic_ising_cnn_gelu_[30, 60, 120]_hc_9_ks_2_ps_3_nconv_0_nblock",
-        map_location="cpu",
-    )
-
-#%% #ANALYSIS OF THE NONGRIFFITH PHASE WITH MIXED DATASET MODEL
-l = 64
-ndata = 1000
-h_max = [
-    4.5,
-]
-n_dataset = [15000] * len(h_max)
-ls = [l] * len(h_max)
-
-activation = "_gelu"
-models_name = []
-data_path = []
-ms = {}
-vs = {}
-models = {}
-for i in range(len(h_max)):
-    path_name = f"data/unet_dataset/valid_periodic_no_griffith_phase_{ls[i]}_l_{h_max[i]}_h_15000_n.npz"
-    ms[h_max[i]] = np.load(path_name)["density"]
-    vs[h_max[i]] = np.load(path_name)["potential"]
-    models[h_max[i]] = torch.load(
-        f"model_rep/unet/h_interval_1-8_augmentation_unet_periodic_ising_cnn_gelu_[30, 60, 120]_hc_9_ks_2_ps_3_nconv_0_nblock",
-        map_location="cpu",
-    )
-
-
-#%% #THE 2NN case
-l = 16
-ndata = 15000
-h_max = [2.40, 5.44, 8.40]
-n_dataset = [ndata] * len(h_max)
-ls = [l] * len(h_max)
-
-activation = "_gelu"
-models_name = []
-data_path = []
-ms = {}
-vs = {}
-models = {}
-for i in range(len(h_max)):
-    path_name = f"data/dataset_2nn/train_unet_periodic_2nn_{ls[i]}_l_{h_max[i]:.2f}_h_{n_dataset[i]}_n.npz"
-    ms[h_max[i]] = np.load(path_name)["density"][0:1000]
-    vs[h_max[i]] = np.load(path_name)["potential"][0:1000]
-    models[h_max[i]] = torch.load(
-        f"model_rep/2nn_ising/h_{h_max[i]:.2f}_15k_unet_periodic_augmentation_[20, 40]_hc_5_ks_2_ps_2_nconv_0_nblock",
-        map_location="cpu",
-    )
-
-
-#%% # Comparison in learning Capacity
-l = 16
-ndata = 15000
-h_max = [5.44, 5.441, 5.442]
-n_dataset = [ndata] * len(h_max)
-ls = [l] * len(h_max)
-
-activation = "_gelu"
-models_name = []
-data_path = []
-ms = {}
-vs = {}
-models = {}
-for i in range(len(h_max)):
-    path_name = f"data/dataset_2nn/train_unet_periodic_2nn_{ls[i]}_l_{h_max[i]:.2f}_h_{n_dataset[i]}_n.npz"
-    ms[h_max[i]] = np.load(path_name)["density"][0:1000]
-    vs[h_max[i]] = np.load(path_name)["potential"][0:1000]
-    if i == 0:
-        print(i)
-        models[h_max[i]] = torch.load(
-            f"model_rep/2nn_ising/h_{h_max[i]:.2f}_15k_unet_periodic_augmentation_[20, 40]_hc_5_ks_2_ps_2_nconv_0_nblock",
-            map_location="cpu",
-        )
-    elif i == 1:
-        print("bigger")
-        models[h_max[i]] = torch.load(
-            f"model_rep/2nn_ising/h_{h_max[i]:.2f}_15k_unet_periodic_augmentation_[40, 80]_hc_5_ks_2_ps_2_nconv_0_nblock",
-            map_location="cpu",
-        )
-    elif i == 2:
-        print("bigger")
-        models[h_max[i]] = torch.load(
-            f"model_rep/2nn_ising/h_{h_max[i]:.2f}_15k_unet_periodic_augmentation_[40, 40]_hc_5_ks_1_ps_2_nconv_0_nblock",
-            map_location="cpu",
-        )
-
-#%% #THE DMRG CASE
-l = 16
-ndata = 15000
-h_max = [2.40, 5.44, 8.40]
-n_dataset = [ndata] * len(h_max)
-ls = [l] * len(h_max)
-
-activation = "_gelu"
-models_name = []
-data_path = []
-ms = {}
-vs = {}
-models = {}
-for i in range(len(h_max)):
-    path_name = f"data/2nn_dataset/train_unet_periodic_2nn_{ls[i]}_l_{h_max[i]:.2f}_h_{n_dataset[i]}_n.npz"
-    ms[h_max[i]] = np.load(path_name)["density"]
-    vs[h_max[i]] = np.load(path_name)["potential"]
-    models[h_max[i]] = torch.load(
-        f"model_rep/2nn_unet/h_{h_max[i]:.2f}_120k_augmentation_unet_periodic_2nn_model_cnn_[20, 40]_hc_5_ks_2_ps_2_nconv_0_nblock",
+        f"model_rep/1nn_ising/h_{h_max[i]}_15k_cnn_[40, 40, 40, 40, 40]_hc_5_ks_1_ps_5_nconv_0_nblock",
         map_location="cpu",
     )
 
@@ -345,49 +186,55 @@ for i in range(0, 10):
 # %% DIAGONALIZATION WITH PSEUDO POTENTIALS in Ising 1nn
 nbatch = 10
 j_coupling = -1
+l = 16
 
 pseudo_m = {}
 m_acc = {}
-for l in ls:
+measure = {}
+for h in h_max:
     _, m, _, f, fm, e = parallel_nambu_diagonalization_ising_model(
         nbatch=nbatch,
         l=l,
         j_coupling=j_coupling,
-        hs=pseudo_pot[l],
+        hs=pseudo_pot[h],
         device="cpu",
         pbc=True,
     )
-    pseudo_m[l] = m
-    m_acc[l] = np.sqrt(np.average((m - ms[l][:ndata]) ** 2, axis=-1)) / np.sqrt(
-        np.average((ms[l][:ndata]) ** 2, axis=-1)
+    pseudo_m[h] = m
+    m_acc[h] = np.sqrt(np.average((m - ms[h][:ndata]) ** 2, axis=-1)) / np.sqrt(
+        np.average((ms[h][:ndata]) ** 2, axis=-1)
     )
+    measure[h] = np.average(np.abs(1 - (v_acc[h] / m_acc[h]) ** 2))
 
-#%% DIAGONALIZATION WITH PSEUDO POTENTIALS in Ising 2nn
-from test_quspin_2nn import transverse_magnetization
-
-nbatch = 1
-j_coupling = -1
-m_acc = {}
-pseudo_m = {}
-# for h in h_max:
-# CONTINUA DA QUA
 
 #%% Measure of NUV-representability
-
-measure = {}
-for h in ls:
-    measure[h] = 1 - (m_acc[h] / v_acc[h]) ** 2
-    plt.hist(
-        measure[h],
-        bins=100,
-        label=h,
-        density=True,
-    )
-plt.xlabel(r"$\mu$", fontsize=20)
-plt.legend(fontsize=20)
+plt.figure(figsize=(10, 10))
+plt.plot(
+    h_max,
+    [np.average(measure[h]) for h in h_max],
+    color="black",
+    linewidth=3,
+    marker="o",
+)
+plt.semilogy()
+plt.xticks(h_max, h_max)
+plt.xlabel(r"$h_{max}$", fontsize=20)
+plt.ylabel(r"$V(h)$", fontsize=20)
+plt.tick_params(
+    top=True,
+    right=True,
+    labeltop=False,
+    labelright=False,
+    direction="in",
+    labelsize=30,
+    width=5,
+)
 plt.show()
 
-for h in ls:
+
+#%%
+
+for h in h_max:
     for i in range(10):
         if measure[h][i] < 0:
             print(measure[h][i])

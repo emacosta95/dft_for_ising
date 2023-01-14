@@ -278,4 +278,7 @@ print(np.average(x_ave))
 # z=np.append(z,-1*z,axis=0)
 # x=np.append(x,x,axis=0)
 # np.savez('data/den2magn_dataset_1nn/train_unet_periodic_1nn_augmentation_16_l_2.71_h_30000_n.npz',density=z,magnetization_x=x)
-# %%
+# %% Losses analysis
+import torch
+
+data = torch.load("")
