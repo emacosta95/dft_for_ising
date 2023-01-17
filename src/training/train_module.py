@@ -34,6 +34,7 @@ def fit(
     name_checkpoint: str,
     history_train: List,
     history_valid: List,
+    history_best: List,
     patiance: int,
     early_stopping: float,
     device: str,
@@ -101,34 +102,33 @@ def fit(
                 tqdm_iterator.refresh()
 
             model.eval()
-            if supervised:
-                r2 = R2Score()
+            # if supervised:
+            #     r2 = R2Score()
 
             for batch in valid_dl:
                 if supervised:
-                    r2 = model.r2_computation(batch, device, r2)
+                    loss = model.train_step(batch, device)
+                    loss_ave_valid += loss.item()
                 else:
                     loss, kldiv = model.train_generative_step(batch, device)
                     loss_ave_valid += loss.item()
                     kldiv_valid += kldiv
-            if supervised:
-                r_ave_train = r2.compute()
-                r2.reset()
 
             for batch in train_dl:
                 if supervised:
-                    r2 = model.r2_computation(batch, device, r2)
+                    loss = model.train_step(batch, device)
+                    loss_ave_train += loss.item()
                 else:
                     loss, kldiv = model.train_generative_step(batch, device)
                     loss_ave_train += loss.item()
                     kldiv_train += kldiv
         if supervised:
-            r_ave_valid = r2.compute()
-            r2.reset()
 
-            history_train.append(r_ave_train)
-            history_valid.append(r_ave_valid)
-            print(r_ave_valid)
+            loss_ave_train = loss_ave_train / len(train_dl)
+            history_train.append(loss_ave_train)
+            loss_ave_valid = loss_ave_valid / len(valid_dl)
+            history_valid.append(loss_ave_valid)
+            print(loss_ave_valid)
 
         else:
             kldiv_train = kldiv_train / len(train_dl)
@@ -141,7 +141,7 @@ def fit(
 
         wait = +1
         if supervised:
-            metric = r_max
+            metric = best_loss
         else:
             metric = best_loss
         if decreasing(history_valid, metric, early_stopping):
@@ -150,24 +150,15 @@ def fit(
             print(f"EARLY STOPPING AT {early_stopping}")
 
         if checkpoint:
+            if best_loss >= loss_ave_valid:
+                print("Decreasing!")
+                torch.save(
+                    model,
+                    f"model_rep/{name_checkpoint}",
+                )
+                best_loss = loss_ave_valid
 
-            if supervised:
-                if r_max <= r_ave_valid:
-                    print("Decreasing!")
-
-                    torch.save(
-                        model,
-                        f"model_rep/{name_checkpoint}",
-                    )
-                    r_max = r_ave_valid
-            else:
-                if best_loss >= loss_ave_valid:
-                    print("Decreasing!")
-                    torch.save(
-                        model,
-                        f"model_rep/{name_checkpoint}",
-                    )
-                    best_loss = loss_ave_valid
+            history_best.append(best_loss)
 
             if supervised:
                 text = ""
@@ -182,12 +173,16 @@ def fit(
                 history_valid,
                 f"losses_dft_pytorch/{name_checkpoint}_loss_valid" + text,
             )
+            torch.save(
+                history_best,
+                f"losses_dft_pytorch/{name_checkpoint}_loss_best" + text,
+            )
 
         if supervised:
             print(
-                f"R_ave_overfitting={r_ave_train} \n"
-                f"R_ave_valid={r_ave_valid} \n"
-                f"R_max={r_max} \n"
+                f"loss_ave_train={loss_ave_train} \n"
+                f"loss_ave_valid={loss_ave_valid} \n"
+                f"best loss={best_loss} \n"
                 f"epochs={epoch}\n"
             )
         else:

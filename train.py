@@ -41,7 +41,6 @@ parser.add_argument(
 )
 
 
-
 parser.add_argument("--name", type=str, help="name of the model", default=None)
 
 parser.add_argument(
@@ -248,9 +247,11 @@ def main(args):
             history_train = pt.load(
                 f"losses_dft_pytorch/{args.name}" + "_loss_train_dft"
             )
+            history_best = pt.load(f"losses_dft_pytorch/{args.name}" + "_loss_best_dft")
         else:
             history_valid = []
             history_train = []
+            history_best = []
         print(len(history_train), len(history_valid))
         model = pt.load(f"model_rep/{args.name}", map_location=device)
         model.loss_dft = nn.MSELoss()
@@ -421,6 +422,7 @@ def main(args):
         name_checkpoint=model_name,
         history_train=history_train,
         history_valid=history_valid,
+        history_best=history_best,
         loss_func=nn.MSELoss(),
         patiance=patiance,
         early_stopping=early_stopping,
