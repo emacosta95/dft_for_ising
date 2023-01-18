@@ -80,8 +80,8 @@ parser.add_argument(
 parser.add_argument(
     "--patiance",
     type=int,
-    help="num of epochs tollerance for the early stopping (default=5)",
-    default=5,
+    help="num of epochs tollerance for the early stopping (default=50)",
+    default=50,
 )
 
 parser.add_argument(
@@ -259,6 +259,7 @@ def main(args):
     else:
         history_valid = []
         history_train = []
+        history_best = []
 
         if args.model_type == "REDENT":
             model = REDENT(

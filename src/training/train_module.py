@@ -97,7 +97,7 @@ def fit(
                 opt.zero_grad()
 
                 tqdm_iterator.set_description(
-                    f"train batch subset-{i} [avg loss: {loss.item():.3f}]"
+                    f"train batch subset-{i} [avg loss: {loss.item():.9f}]"
                 )
                 tqdm_iterator.refresh()
 
@@ -124,9 +124,9 @@ def fit(
                     kldiv_train += kldiv
         if supervised:
 
-            loss_ave_train = loss_ave_train / len(train_dl)
+            loss_ave_train = loss_ave_train / (len(train_dl) * len(train_dls))
             history_train.append(loss_ave_train)
-            loss_ave_valid = loss_ave_valid / len(valid_dl)
+            loss_ave_valid = loss_ave_valid / (len(valid_dl) * len(train_dls))
             history_valid.append(loss_ave_valid)
             print(loss_ave_valid)
 
@@ -139,7 +139,7 @@ def fit(
             loss_ave_valid = loss_ave_valid / len(valid_dl)
             history_valid.append(loss_ave_valid)
 
-        wait = +1
+        wait = wait + 1
         if supervised:
             metric = best_loss
         else:
