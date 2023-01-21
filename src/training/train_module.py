@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 def decreasing(val_losses, best_loss, min_delta=0.001):
     """for early stopping"""
     try:
-        is_decreasing = val_losses[-1] < best_loss - min_delta
+        is_decreasing = val_losses[-1] < best_loss * (1 - min_delta)
     except:
         is_decreasing = True
     return is_decreasing

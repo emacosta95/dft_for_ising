@@ -80,8 +80,8 @@ parser.add_argument(
 parser.add_argument(
     "--patiance",
     type=int,
-    help="num of epochs tollerance for the early stopping (default=50)",
-    default=50,
+    help="num of epochs tollerance for the early stopping (default=100000)",
+    default=100000,
 )
 
 parser.add_argument(
