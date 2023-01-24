@@ -31,7 +31,8 @@ parser.add_argument(
     "--load",
     type=bool,
     help="Loading or not the model",
-    action=argparse.BooleanOptionalAction,
+    #action=argparse.BooleanOptionalAction,
+    action='store_true',
 )
 
 
