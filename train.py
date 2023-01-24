@@ -5,24 +5,18 @@ import random
 import numpy as np
 import torch as pt
 import torch.nn as nn
-from pyexpat import model
-from torch.nn.modules import pooling
-from tqdm import tqdm, trange
 
 from src.training.models import (
     REDENT,
     Den2Cor,
     Den2CorLSTM_beta,
-    Den2CorRESNET,
     REDENTnopooling,
 )
 from src.training.dft_models import REDENTScalableTraining, REDENTnobias, Den2Func
 from src.training.train_module import fit
 from src.training.utils import (
     count_parameters,
-    from_txt_to_bool,
     get_optimizer,
-    make_data_loader_unet_scale,
     make_data_loader_unet,
 )
 

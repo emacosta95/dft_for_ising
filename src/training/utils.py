@@ -1,18 +1,12 @@
 # %%
 # Libraries
-import argparse
-import os
 from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch as pt
 import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-from torch.utils.data import DataLoader, Dataset, TensorDataset
-from torchmetrics import R2Score
-from tqdm.notebook import tqdm, trange
+from torch.utils.data import DataLoader, TensorDataset
 
 from src.training.dataset import ScalableCorrelationDataset
 
