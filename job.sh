@@ -11,7 +11,7 @@
 #SBATCH --error=/g100/userexternal/ecosta01/output/230123_JOB_%j.out
 #SBATCH --mail-type=BEGIN,END,FAIL,TIME_LIMIT
 #SBATCH --mail-user=emanuele.costa@unicam.it
-#SBATCH --account=icei_Pilati
+#SBATCH --account=IscrC_SMORAGEN
 
 #=============================
 # environment
