@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-#SBATCH --job-name="quench_simulations"
-#SBATCH --time=05:00:00
+#SBATCH --job-name="train_different_sizes"
+#SBATCH --time=24:00:00
 #SBATCH --mem=4G
 #SBATCH --array=8,24
 #SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:4        # 1 gpus per node out of 4
 #SBATCH --partition=m100_usr_prod
-#SBATCH --output=/g100/userexternal/ecosta01/output/230123_JOB_%j.out
-#SBATCH --error=/g100/userexternal/ecosta01/output/230123_JOB_%j.out
+#SBATCH --output=/g100/userexternal/ecosta01/dft_for_ising/output/output_230123_JOB_%j.out
+#SBATCH --error=/g100/userexternal/ecosta01/dft_for_ising/output/error_230123_JOB_%j.out
 #SBATCH --mail-type=BEGIN,END,FAIL,TIME_LIMIT
 #SBATCH --mail-user=emanuele.costa@unicam.it
 #SBATCH --account=IscrC_SMORAGEN
