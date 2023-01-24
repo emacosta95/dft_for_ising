@@ -27,11 +27,17 @@ from src.training.utils import (
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers()
 
+#parser.add_argument(
+#    "--load",
+#    type=bool,
+#    help="Loading or not the model",
+#    action=argparse.BooleanOptionalAction,
+#    )
+
 parser.add_argument(
     "--load",
-    type=bool,
+    type=str,
     help="Loading or not the model",
-    #action=argparse.BooleanOptionalAction,
     action='store_true',
 )
 
