@@ -34,12 +34,7 @@ subparsers = parser.add_subparsers()
 #    action=argparse.BooleanOptionalAction,
 #    )
 
-parser.add_argument(
-    "--load",
-    type=str,
-    help="Loading or not the model",
-    action='store_true',
-)
+
 
 
 parser.add_argument("--name", type=str, help="name of the model", default=None)
@@ -224,6 +219,7 @@ def main(args):
     pt.backends.cudnn.benchmark = False
     # Set hyperparameters
     epochs = args.epochs
+    load=false #args.load
     lr = args.lr
     bs = args.bs
     patiance = args.patiance
@@ -239,7 +235,7 @@ def main(args):
         model_name + name_hc + name_ks + name_pooling_size + name_n_conv + name_n_block
     )
     # Set the dataset path
-    if args.load:
+    if load:
         print(f"loading the model {args.name}")
         if os.path.isfile(f"losses_dft_pytorch/{args.name}" + "_loss_valid_dft"):
             history_valid = pt.load(
