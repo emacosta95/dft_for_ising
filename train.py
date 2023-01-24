@@ -219,7 +219,7 @@ def main(args):
     pt.backends.cudnn.benchmark = False
     # Set hyperparameters
     epochs = args.epochs
-    load=false #args.load
+    load=False #args.load
     lr = args.lr
     bs = args.bs
     patiance = args.patiance
