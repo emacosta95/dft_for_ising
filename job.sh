@@ -7,8 +7,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:4        # 1 gpus per node out of 4
 #SBATCH --partition=m100_usr_prod
-#SBATCH --output=/g100/userexternal/ecosta01/dft_for_ising/output/output_230123_JOB_%j.out
-#SBATCH --error=/g100/userexternal/ecosta01/dft_for_ising/output/error_230123_JOB_%j.out
+#SBATCH --output=/m100/userexternal/ecosta01/dft_for_ising/output/output_230123_JOB_%j.out
+#SBATCH --error=/m100/userexternal/ecosta01/dft_for_ising/output/error_230123_JOB_%j.out
 #SBATCH --mail-type=BEGIN,END,FAIL,TIME_LIMIT
 #SBATCH --mail-user=emanuele.costa@unicam.it
 #SBATCH --account=IscrC_SMORAGEN
