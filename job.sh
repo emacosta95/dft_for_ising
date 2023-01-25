@@ -30,5 +30,5 @@ ndata=$(($((1000*$SLURM_ARRAY_TASK_ID))))
 #=============================
 # running
 
-srun python train.py  --hidden_channel 40 40 40 40 40 40  --kernel_size=5 --padding=2  --model_name=1nn_ising/h_2.7_unet_no_aug --data_path=data/1nn_ising/train_without_augmentation/train_unet_periodic_augmentation_16_l_2.7_h_$ndata\_n.npz --model_type=REDENTnopooling --pooling_size=1 --epochs=3000 
+srun python train.py  --hidden_channel 40 40 40 40 40 40  --kernel_size=5 --padding=2  --model_name=1nn_ising/h_2.7_unet_no_aug --data_path=data/1nn_ising/train_without_augmentation/unet_periodic_16_l_2.7_h_$ndata\_n.npz --model_type=REDENTnopooling --pooling_size=1 --epochs=3000 
 
