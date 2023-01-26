@@ -3,7 +3,7 @@
 #SBATCH --job-name="train_different_sizes"
 #SBATCH --time=24:00:00
 #SBATCH --mem=4G
-#SBATCH --array=8,2
+#SBATCH --array=8,24
 #SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:4        # 1 gpus per node out of 4
 #SBATCH --partition=m100_usr_prod
