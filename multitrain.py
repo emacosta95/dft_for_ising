@@ -1,10 +1,10 @@
 import os
 
-
-data = [5000, 10000, 15000, 30000, 150000]
+l_train = [8, 24]
+data = [150000] * len(l_train)
 ks = [5] * len(data)
 hs = [2.7] * len(ks)
-data_str = ["5k", "10k", "15k", "30k", "150k"] * len(data)
+data_str = ["150k"] * len(data)
 hidden_channel = " 40 40 40 40 40 40 "
 padding = [2] * len(data)
 model_type = "REDENTnopooling"
@@ -15,7 +15,7 @@ for i in range(len(data)):
         + hidden_channel
         + f"  --kernel_size={ks[i]} --padding={padding[i]}  --model_name='1nn_ising/h_{hs[i]}_"
         + data_str[i]
-        + f"_unet_no_aug' --data_path='data/dataset_1nn/train_without_augmentation/unet_periodic_{16}_l_{hs[i]}_h_{data[i]}_n.npz' --model_type={model_type} --pooling_size=1 --epochs={epochs[i]} > output/train_unet_{model_type}.txt &"
+        + f"_unet_no_aug_l_train_{l_train[i]}' --data_path='data/dataset_1nn/train_without_augmentation/unet_periodic_{l_train[i]}_l_{hs[i]}_h_{data[i]}_n.npz' --model_type={model_type} --pooling_size=1 --epochs={epochs[i]} > output/train_unet_{model_type}.txt &"
     )
     print(file_name)
     os.system(file_name)

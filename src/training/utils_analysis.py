@@ -103,8 +103,8 @@ def test_models_unet(models_name: List, data_path: List):
         model.eval()
         model = model.to(dtype=pt.double)
 
-        dde = []
-        ddevde = []
+        de = 0.0
+        devde = 0
         for n, f, v, e_std in dl:
             n = n.to(dtype=pt.double)
             f = f.to(dtype=pt.double)
@@ -118,34 +118,33 @@ def test_models_unet(models_name: List, data_path: List):
             r2.update(output.mean(dim=-1), f)
             # print(f[0],pt.mean(output,dim=-1)[0])
             eng = energy.batch_calculation(n.squeeze())
-            de = np.average(
+            de = de + np.average(
                 np.abs(
                     output.mean(dim=-1).detach().numpy().reshape(-1)
                     - f.detach().numpy()
                 )
                 / np.abs(f.detach().numpy())
             )
-            devde = (1 / np.sqrt(f.shape[0])) * np.std(
+            devde = devde + (1 / np.sqrt(f.shape[0])) * np.std(
                 np.abs(
                     output.mean(dim=-1).detach().numpy().reshape(-1)
                     - f.detach().numpy()
                 )
                 / np.abs(f.detach().numpy())
             )
-            dde.append(de)
-            ddevde.append(devde)
+
         print(model)
         print(f"# parameters={count_parameters(model)}")
         print(f"R_square_test={r2.compute()} for {model_name} \n")
-        print(f"de={de} std(de)={devde}")
+        print(f"de={de/len(dl)} std(de)={devde/len(dl)}")
         r_square_list.append(r2.compute().detach().numpy())
         r2.reset()
-        accuracy_prediction_energy_average.append(np.average(dde))
-        accuracy_prediction_energy_std.append(np.average(ddevde))
+        accuracy_prediction_energy_average.append(np.average(de / len(dl)))
+        accuracy_prediction_energy_std.append(np.average(devde / len(dl)))
     return (
-        np.asarray(r_square_list),
-        np.asarray(accuracy_prediction_energy_average),
-        np.asarray(accuracy_prediction_energy_std),
+        (r_square_list),
+        (accuracy_prediction_energy_average),
+        (accuracy_prediction_energy_std),
     )
 
 
