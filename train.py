@@ -27,12 +27,12 @@ from src.training.utils import (
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers()
 
-parser.add_argument(
-    "--load",
-    type=bool,
-    help="Loading or not the model",
-    action=argparse.BooleanOptionalAction,
-   )
+#parser.add_argument(
+#    "--load",
+#    type=bool,
+#    help="Loading or not the model",
+#    action=argparse.BooleanOptionalAction,
+#   )
 
 
 
@@ -219,7 +219,7 @@ def main(args):
     pt.backends.cudnn.benchmark = False
     # Set hyperparameters
     epochs = args.epochs
-    load=args.load
+    load=False#args.load
     lr = args.lr
     bs = args.bs
     patiance = args.patiance
