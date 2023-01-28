@@ -1,15 +1,16 @@
 import os
 
+blocks = 2
 l_train = [8, 24]
-data = [150000] * len(l_train)
+data = [150000] * blocks
 ks = [5] * len(data)
 hs = [2.7] * len(ks)
 data_str = ["150k"] * len(data)
-hidden_channel = " 40 40 40 40 40 40 "
+hidden_channel = " 40 40 40 40 40 40"
 padding = [2] * len(data)
 model_type = "REDENTnopooling"
 epochs = [3000] * len(data)
-for i in range(len(data)):
+for i in range(blocks):
     file_name = (
         f"nohup python train.py  --hidden_channel"
         + hidden_channel
@@ -19,6 +20,7 @@ for i in range(len(data)):
     )
     print(file_name)
     os.system(file_name)
+    # hidden_channel = hidden_channel + " 40 40"
 
 
 # os.system(

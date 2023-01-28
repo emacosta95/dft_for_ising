@@ -81,7 +81,7 @@ def dataloader(
         return history, history_n
 
 
-def test_models_unet(models_name: List, data_path: List):
+def test_models_unet(models_name: List, data_path: List, long_range: bool):
     r_square_list = []
     accuracy_prediction_energy_average = []
     accuracy_prediction_energy_std = []
@@ -111,7 +111,9 @@ def test_models_unet(models_name: List, data_path: List):
             v = v.to(dtype=pt.double)
             e_std = e_std.numpy()
             model.eval()
-            energy = Energy_unet(model, pt.tensor(v, dtype=pt.double))
+            energy = Energy_unet(
+                model, pt.tensor(v, dtype=pt.double), long_range=long_range
+            )
 
             output = model(n)
             # print(f.shape)

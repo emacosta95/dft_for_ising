@@ -2391,13 +2391,17 @@ class Den2CorRECURRENT_alpha(nn.Module):
 
 
 class Energy_unet(nn.Module):
-    def __init__(self, F_universal: nn.Module, v: torch.Tensor):
+    def __init__(
+        self, F_universal: nn.Module, v: torch.Tensor, long_range: bool = False
+    ):
 
         super().__init__()
 
         self.Func = F_universal
 
         self.v = v
+
+        self.long_range = long_range
 
     def forward(self, x: torch.Tensor):
         """Value of the Energy function given the potential
@@ -2412,7 +2416,10 @@ class Energy_unet(nn.Module):
 
         eng_1 = self.Func(w)
 
-        eng_1 = torch.mean(eng_1, dim=-1)
+        if self.long_range:
+            eng_1 = torch.mean(eng_1, dim=-1) * w.shape[-1]
+        else:
+            eng_1 = torch.mean(eng_1, dim=-1)
 
         eng_2 = torch.einsum("ai,i->a", x, self.v) / x.shape[-1]
         # eng_2 = pt.trapezoid(eng_2, dx=self.dx, dim=1)
@@ -2423,7 +2430,10 @@ class Energy_unet(nn.Module):
 
         w = x.clone().view(x.shape[0], -1)
 
-        eng_1 = self.Func(w).mean(dim=-1)
+        if self.long_range:
+            eng_1 = torch.mean(eng_1, dim=-1) * w.shape[-1]
+        else:
+            eng_1 = torch.mean(eng_1, dim=-1)
 
         eng_2 = torch.einsum("ai,ai->a", x, self.v) / x.shape[-1]
         # eng_2 = pt.trapezoid(eng_2, dx=self.dx, dim=1)

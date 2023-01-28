@@ -65,6 +65,7 @@ class GradientDescent:
         num_threads: int,
         device: str,
         n_init: np.array,
+        long_range: bool,
     ):
 
         self.device = device
@@ -73,6 +74,8 @@ class GradientDescent:
 
         self.early_stopping = early_stopping
         self.variable_lr = variable_lr
+
+        self.long_range = long_range
 
         # two version for different operations
         self.dx_torch = pt.tensor(L / resolution, dtype=pt.double, device=self.device)
@@ -219,7 +222,7 @@ class GradientDescent:
 
         n_ref = self.n_target[idx]
         pot = pt.tensor(self.v_target[idx], device=self.device)
-        energy = Energy_unet(model, pot)
+        energy = Energy_unet(model, pot, long_range=self.long_range)
 
         energy = energy.to(device=self.device)
 

@@ -97,10 +97,17 @@ parser.add_argument(
     default=42,
 )
 
+parser.add_argument(
+    "--long_range",
+    type=bool,
+    help="if True, use the long range option in the energy (default=False)",
+    action=argparse.BooleanOptionalAction,
+)
+
 
 args = parser.parse_args()
 
-n_init=np.load(args.init_path)['density']
+n_init = np.load(args.init_path)["density"]
 
 gd = GradientDescent(
     n_instances=args.n_instances,
@@ -121,6 +128,7 @@ gd = GradientDescent(
     device=args.device,
     seed=args.seed,
     logdiffsoglia=args.logdiffsoglia,
+    long_range=args.long_range,
 )
 
 gd.run()

@@ -32,9 +32,7 @@ parser.add_argument(
     type=bool,
     help="Loading or not the model",
     action=argparse.BooleanOptionalAction,
-   )
-
-
+)
 
 
 parser.add_argument("--name", type=str, help="name of the model", default=None)
@@ -219,7 +217,7 @@ def main(args):
     pt.backends.cudnn.benchmark = False
     # Set hyperparameters
     epochs = args.epochs
-    load=args.load
+    load = args.load
     lr = args.lr
     bs = args.bs
     patiance = args.patiance
