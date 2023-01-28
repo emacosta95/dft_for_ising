@@ -3,7 +3,7 @@
 #SBATCH --job-name="train_different_sizes"
 #SBATCH --time=24:00:00
 #SBATCH --mem=4G
-#SBATCH --array=3
+#SBATCH --array=5
 #SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:4        # 1 gpus per node out of 4
 #SBATCH --partition=m100_usr_prod
@@ -28,5 +28,5 @@ echo "Running on "`hostname`
 #=============================
 # running
 
-srun python train.py  --hidden_channel 40 40 40 40 40 40   --kernel_size=$SLURM_ARRAY_TASK_ID --padding=1  --model_name=1nn_ising/h_2.7_unet_no_aug --data_path=data/1nn_ising/train_without_augmentation/unet_periodic_16_l_2.7_h_150000_n.npz --model_type=REDENTnopooling --pooling_size=1 --epochs=3000 
+srun python train.py  --hidden_channel 40 40 40   --kernel_size=$SLURM_ARRAY_TASK_ID --padding=2  --model_name=1nn_ising/h_2.7_unet_no_aug --data_path=data/1nn_ising/train_without_augmentation/unet_periodic_16_l_2.7_h_150000_n.npz --model_type=REDENTnopooling --pooling_size=1 --epochs=3000 
 
