@@ -11,7 +11,7 @@
 #SBATCH --error=/m100/home/userexternal/ecosta01/dft_for_ising/output/error_JOB_%j.out
 #SBATCH --mail-type=BEGIN,END,FAIL,TIME_LIMIT
 #SBATCH --mail-user=emanuele.costa@unicam.it
-#SBATCH --account=IscrC_SMORAGEN
+#SBATCH --account=IscrC_NEMCAQS
 
 #=============================
 # environment
