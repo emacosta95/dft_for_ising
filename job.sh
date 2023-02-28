@@ -28,5 +28,5 @@ echo "Running on "`hostname`
 #=============================
 # running
 
-srun python train.py  --hidden_channel 40 40 40 40 40 40   --kernel_size=5 --padding=2  --model_name=1nn_ising/h_2.5_unet_no_aug_l_train_$SLURM_ARRAY_TASK_ID --data_path=data/1nn_ising/final_study_quasi_phase_transition/train_unet_periodic_$SLURM_ARRAY_TASK_ID\_l_2.5_h_150000_n.npz --model_type=REDENTnopooling --pooling_size=1 --epochs=3000 
+srun python train.py  --hidden_channel 40 40 40 40 40 40   --kernel_size=5 --padding=2  --model_name=2nn_ising/h_5.6_unet_no_aug_l_train_$SLURM_ARRAY_TASK_ID --data_path=data/2nn_ising/unet_pbc_$SLURM_ARRAY_TASK_ID\_l_5.60_h_100001_n.npz --model_type=REDENTnopooling --pooling_size=1 --epochs=3000 
 
